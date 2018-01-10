@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="category">
+
+    <!--查询所有一级分类-->
+    <select id="selectAllCategory" resultType="com.cdsxt.ro.Category">
+        select cid, cname
+        from category
+    </select>
+
+
+    <!--查询所有二级分类-->
+    <resultMap id="categorySecondMap" type="com.cdsxt.ro.CategorySecond" autoMapping="true">
+        <id property="csid" column="csid"/>
+        <association property="category" javaType="com.cdsxt.ro.Category">
+            <id property="cid" column="cid"/>
+            <result property="cname" column="cname"/>
+        </association>
+    </resultMap>
+    <select id="selectAllCategorySecond" resultMap="categorySecondMap">
+        SELECT
+        cs.csid,
+        cs.csname,
+        cs.cid,
+        c.cname
+        FROM category_second AS cs
+        LEFT JOIN category AS c
+        ON cs.cid = c.cid
+    </select>
+
+</mapper>
