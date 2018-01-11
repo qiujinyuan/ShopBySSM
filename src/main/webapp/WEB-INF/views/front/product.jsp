@@ -12,6 +12,8 @@
     <!-- 基本页面-元信息 -->
     <%@ include file="common-base.jsp" %>
     <link href="assets/css/product.css" rel="stylesheet" type="text/css"/>
+    <script src="assets/js/jquery-1.8.3.js"></script>
+    <script src="assets/js/cookie-util.js"></script>
 
 </head>
 <body>
@@ -48,6 +50,7 @@
                rel="gallery">
                 <div class="zoomPad">
                     <img style="opacity: 1;" class="medium"
+                    <%--商品图片--%>
                          src="assets/products/${curProduct.image}"/>
                     <div
                             style="display: block; top: 0px; left: 162px; width: 0px; height: 0px; position: absolute; border-width: 1px;"
@@ -72,7 +75,7 @@
             </a>
 
         </div>
-        <div class="name">${curProduct.pname}</div>
+        <div class="name" id="pname">${curProduct.pname}</div>
         <div class="sn">
             <div>编号： ${curProduct.pid}</div>
         </div>
@@ -105,7 +108,8 @@
                 <div class="buy">
                     <input id="addCart" class="addCart" value="加入购物车" type="button"
                            onclick="saveCart();"/>
-                    <br>
+                    <%--<br>--%>
+                    &nbsp;&nbsp;&nbsp;
                     <input class="addCart" value="购物车结算" type="button"
                            onclick="countCart();"/>
                     <!-- <input id="buyProduct" class="addCart" value="立即购买" type="button"
@@ -136,3 +140,57 @@
 
 </body>
 </html>
+
+<script>
+
+    // 加入到购物车
+    function saveCart() {
+        // 购物车; 使用 数组
+        var cart = [];
+        // 获取商品信息, 然后构建 json 对象
+        var pid = parseInt($("input[name='pid']").val());
+        var srcImage = $('.zoomPad').find('.medium').attr('src');
+        var image = srcImage.substring(srcImage.lastIndexOf('/') + 1);
+        var price = $('.info').find('dd').html();
+        var shopPrice = parseFloat(price.substring(price.indexOf('：') + 1, price.indexOf('元')));
+        var count = parseInt($('#pcount').val());
+        var pname = $("#pname").html();
+        // 取出 cookie
+        var cookie = decodeURIComponent(document.cookie);
+        if (!cookie || cookie.indexOf("cart") === -1) {
+            // 新建购物车后， 立即添加商品，此时不可能重复
+            var product1 = {pid: pid, image: image, shopPrice: shopPrice, count: count, pname: pname};
+            cart.push(product1);
+            // 不存在, 新建一个 cookie
+            Cookie.setCookie("cart", encodeURIComponent(JSON.stringify(cart)));
+        } else {
+            // 已存在购物车
+            // 从 cookie 中取出 购物车
+            cart = JSON.parse(cookie.substring(cookie.indexOf("=") + 1));
+            // 2. 判断商品是否存在
+            for (var i = 0; i < cart.length; i++) {
+                if (cart[i].pid == pid) {
+                    // 存在, 修改数量
+                    cart[i].count += count;
+                    // 更新 cookie
+                    Cookie.setCookie("cart", encodeURIComponent(JSON.stringify(cart)));
+                    alert("添加成功!");
+                    return;
+                }
+            }
+            // 不存在, 新建 json 对象, 并存入到 cart 中
+            // 添加第一个商品
+            // 需要参数为 商品编号 pid, 图片 image, 价格 shopPrice, 数量 count, 合计 sum = (shopPrice * count),
+            var product2 = {pid: pid, image: image, shopPrice: shopPrice, count: count, pname: pname};
+            cart.push(product2);
+            // 更新 cookie
+            Cookie.setCookie("cart", encodeURIComponent(JSON.stringify(cart)));
+        }
+        alert("添加成功!");
+    }
+
+    // 购物车结算
+    function countCart() {
+        window.open("carts/cart", "_blank");
+    }
+</script>

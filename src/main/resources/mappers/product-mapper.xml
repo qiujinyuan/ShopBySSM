@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="product">
+<mapper namespace="com.cdsxt.dao.ProductDao">
 
     <select id="selectAll" resultType="product">
         select pid, pname, market_price as marketPrice, shop_price as shopPrice,
@@ -38,7 +38,7 @@
         select pid, pname, market_price as marketPrice, shop_price as shopPrice,
         image, pdesc, is_hot as isHot, pdate, csid
         from product
-        where pid = #{pid}
+        where pid = #{0}
     </select>
 
     <!--带参数查询-->
@@ -79,7 +79,7 @@
         select pid, pname, market_price as marketPrice, shop_price as shopPrice,
         image, pdesc, is_hot as isHot, pdate, csid
         from product
-        where csid = #{csid}
+        where csid = #{0}
     </select>
 
     <!--根据商品种类: 一级分类查询-->
@@ -97,7 +97,7 @@
         FROM product AS p
         LEFT JOIN category_second cs ON p.csid = cs.csid
         LEFT JOIN category c ON cs.cid = c.cid
-        WHERE c.cid = #{cid};
+        WHERE c.cid = #{0};
     </select>
 
 </mapper>

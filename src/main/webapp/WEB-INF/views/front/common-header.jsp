@@ -61,7 +61,7 @@
             </ul>
         </div>
         <div class="cart">
-            <a href="cart/query.do">购物车</a>
+            <a href="carts/cart">购物车</a>
         </div>
         <div class="phone">
             尚学堂客服热线: <strong>028-65176856</strong>
