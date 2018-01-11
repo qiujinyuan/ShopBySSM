@@ -2,8 +2,6 @@ import com.cdsxt.dao.CategoryDao;
 import com.cdsxt.dao.ProductDao;
 import com.cdsxt.dao.impl.CategoryDaoImpl;
 import com.cdsxt.dao.impl.ProductDaoImpl;
-import com.cdsxt.service.ProductService;
-import com.cdsxt.service.impl.ProductServiceImpl;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;

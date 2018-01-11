@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="product">
 
-    <select id="selectAll" resultType="com.cdsxt.ro.Product">
+    <select id="selectAll" resultType="product">
         select pid, pname, market_price as marketPrice, shop_price as shopPrice,
         image, pdesc, is_hot as isHot, pdate, csid
         from product
     </select>
 
     <!--查询所有最热商品-->
-    <select id="selectAllHotProducts" resultType="com.cdsxt.ro.Product">
+    <select id="selectAllHotProducts" resultType="product">
         select pid, pname, market_price as marketPrice, shop_price as shopPrice,
         image, pdesc, is_hot as isHot, pdate, csid
         from product
@@ -17,7 +17,7 @@
     </select>
 
     <!--查询所有最新商品: 三个月以内-->
-    <select id="selectAllNewProducts" resultType="com.cdsxt.ro.Product">
+    <select id="selectAllNewProducts" resultType="product">
         SELECT
         pid,
         pname,
@@ -34,7 +34,7 @@
 
 
     <!--根据 id 进行查询-->
-    <select id="selectById" resultType="com.cdsxt.ro.Product">
+    <select id="selectById" resultType="product">
         select pid, pname, market_price as marketPrice, shop_price as shopPrice,
         image, pdesc, is_hot as isHot, pdate, csid
         from product
@@ -42,7 +42,7 @@
     </select>
 
     <!--带参数查询-->
-    <select id="selectProductWithParam" resultType="com.cdsxt.ro.Product">
+    <select id="selectProductWithParam" resultType="product">
         SELECT
         pid,
         pname,
@@ -75,7 +75,7 @@
     </select>
 
     <!--根据商品种类: 二级分类查询-->
-    <select id="selectProductWithCategorySecond" resultType="com.cdsxt.ro.Product">
+    <select id="selectProductWithCategorySecond" resultType="product">
         select pid, pname, market_price as marketPrice, shop_price as shopPrice,
         image, pdesc, is_hot as isHot, pdate, csid
         from product
@@ -83,7 +83,7 @@
     </select>
 
     <!--根据商品种类: 一级分类查询-->
-    <select id="selectProductWithCategory" resultType="com.cdsxt.ro.Product">
+    <select id="selectProductWithCategory" resultType="product">
         SELECT
         pid,
         pname,

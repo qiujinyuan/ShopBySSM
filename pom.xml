@@ -20,8 +20,16 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
-            <version>3.4.1</version>
+            <version>3.2.3</version>
         </dependency>
+
+        <!--mybatis spring 集成-->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+
 
         <!--testng 测试工具-->
         <dependency>
@@ -54,13 +62,6 @@
             <version>4.1.6.RELEASE</version>
         </dependency>
 
-        <!--Spring AOP-->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-            <version>4.1.6.RELEASE</version>
-        </dependency>
-
         <!--Spring MVC-->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -82,7 +83,14 @@
             <version>1.1.6</version>
         </dependency>
 
-        <!--AOP-->
+<!--        &lt;!&ndash;连接池使用 dbcp&ndash;&gt;
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+        </dependency>-->
+
+<!--        &lt;!&ndash;AOP&ndash;&gt;
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
@@ -94,24 +102,14 @@
             <version>1.8.13</version>
         </dependency>
 
-        <!--cglib-->
+        &lt;!&ndash;cglib&ndash;&gt;
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>3.2.4</version>
-        </dependency>
+        </dependency>-->
 
         <!--Jackson-->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.9.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.9.2</version>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -129,6 +127,7 @@
             <artifactId>standard</artifactId>
             <version>1.1.2</version>
         </dependency>
+
     </dependencies>
 
 
@@ -143,6 +142,12 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
             </plugin>
         </plugins>
     </build>

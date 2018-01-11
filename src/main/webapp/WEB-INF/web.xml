@@ -46,10 +46,6 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
-    <servlet>
-        <servlet-name>Servlet</servlet-name>
-        <servlet-class>com.cdsxt.web.cntroller.Servlet</servlet-class>
-    </servlet>
     <servlet-mapping>
         <servlet-name>spring-mvc</servlet-name>
         <url-pattern>/</url-pattern>

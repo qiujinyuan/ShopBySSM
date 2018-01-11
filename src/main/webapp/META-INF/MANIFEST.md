@@ -13,3 +13,5 @@
 5. 最新商品
     最近三个月内的商品
 
+6. 整合 spring 与 mybatis
+7. 将 mybatis 改为面向接口
