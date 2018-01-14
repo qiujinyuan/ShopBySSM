@@ -33,7 +33,7 @@
                 </div>
                 <div></div>
                 <form id="loginForm"
-                      action="user/login.do"
+                      action="shop/login"
                       method="post" novalidate="novalidate">
                     <table>
                         <tbody>
@@ -58,7 +58,7 @@
                                     <dt>还没有注册账号？</dt>
                                     <dd>
                                         立即注册即可体验在线购物！ <a
-                                            href="user/register.do">立即注册</a>
+                                            href="shop/register">立即注册</a>
                                     </dd>
                                 </dl>
                             </td>

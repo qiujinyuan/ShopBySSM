@@ -22,7 +22,7 @@ public class ProductController {
     private CategoryDao categoryDao;
 
     // 商城首页
-    @RequestMapping(value = "index", method = RequestMethod.GET)
+    @RequestMapping(value = "index")
     public String index(Model model, HttpServletRequest request) {
         // 进入商城首页后, 将商品分类查询出来放在 session 中
         request.getSession().setAttribute("allCategories", this.categoryDao.selectAllCategory());

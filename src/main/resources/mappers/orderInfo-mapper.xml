@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdsxt.dao.OrderDao">
+
+    <!--插入订单信息-->
+    <insert id="generateOrderInfo" useGeneratedKeys="true">
+        <selectKey keyProperty="oid" resultType="java.lang.String" order="BEFORE">
+            select uuid()
+        </selectKey>
+        insert into order_info(oid, sum_price, order_time, state, name, phone, addr, uid, logistics_comp, logistics_num)
+        values(#{oid}, #{sumPrice}, #{orderTime}, #{state}, #{name}, #{phone}, #{addr}, #{uid}, #{logisticsComp},
+        #{logisticsNum})
+    </insert>
+
+
+    <!--插入订单与商品的关联关系-->
+    <insert id="generateOrderProductInfo">
+        insert into order_product_info(oid, pid, count, buy_price)
+        values(#{oid}, #{pid}, #{count}, #{buyPrice})
+    </insert>
+
+</mapper>

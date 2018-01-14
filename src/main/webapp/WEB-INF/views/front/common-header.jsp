@@ -7,7 +7,7 @@
         //清除cookie购物车
         Cookie.delCookie('cart');
         //请求到后台注销
-        window.location.href = "${pageContext.request.contextPath}/user/loginOut.do";
+        window.location.href = "shop/loginOut";
     }
 </script>
 
@@ -41,7 +41,7 @@
                 </c:if>
                 <c:if test="${curUser!=null}">
                     <li id="headerLogin" class="headerLogin"
-                        style="display: list-item;"> ${curUser.userName}|
+                        style="display: list-item;"> ${curUser.username}|
                     </li>
                     <li id="headerLogin" class="headerLogin"
                         style="display: list-item;"><a
@@ -88,7 +88,7 @@
     <div class="span24">
         <ul class="mainNav">
             <li><a href="products/index">首页</a> |</li>
-            <%--todo 所有商品目录; 一级分类--%>
+            <%-- 所有商品目录; 一级分类--%>
             <c:forEach var="cat" items="${allCategories}">
                 <li>
                     <a href="products/selectProductWithCategory?cid=${cat.cid}">${cat.cname }</a>|
