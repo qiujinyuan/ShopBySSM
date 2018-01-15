@@ -62,7 +62,7 @@
                 结算方式:
             </dt>
             <div>
-                <input type="radio" name="payMethod" value="alipay">支付宝
+                <input type="radio" name="payMethod" value="alipay" checked="checked">支付宝
                 <input type="radio" name="payMethod" value="wechat">微信
             </div>
 

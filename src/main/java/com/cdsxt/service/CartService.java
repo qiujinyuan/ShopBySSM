@@ -7,4 +7,8 @@ public interface CartService {
 
     // 计算购物车中的商品总量信息
     ProductsInfoInCart countProductInCart(ProductInCart[] productsInCart);
+
+    String getCartStrFromRedis(String username);
+
+    void setCartStrToRedis(String username, String cartStr);
 }

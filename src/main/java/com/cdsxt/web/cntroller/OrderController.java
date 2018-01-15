@@ -1,5 +1,7 @@
 package com.cdsxt.web.cntroller;
 
+import com.alipay.api.AlipayApiException;
+import com.cdsxt.ro.OrderInfo;
 import com.cdsxt.ro.UserAddress;
 import com.cdsxt.ro.UserFront;
 import com.cdsxt.service.CartService;
@@ -13,14 +15,15 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import redis.clients.jedis.Jedis;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 @RequestMapping("order")
 @Controller
@@ -36,6 +39,9 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private Alipay alipay;
+
     /**
      * 返回订单页面
      *
@@ -47,14 +53,8 @@ public class OrderController {
         // 获取当前用户
         UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
 
-        String productInCart = "";
-        // 根据当前用户, 查询 redis 中保存的购物车中商品信息
-        Jedis jedis = new Jedis();
-        for (Map.Entry<String, String> entry : jedis.hgetAll("cart").entrySet()) {
-            if (uf.getUsername().equals(entry.getKey())) {
-                productInCart = entry.getValue();
-            }
-        }
+        String productInCart = this.cartService.getCartStrFromRedis(uf.getUsername());
+
         // 解析购物车字符串, 与订单中的商品 id 进行比较, 相同则表示该商品需要结算, 就返回到页面上
         List<ProductInCart> productsInOrders = new ArrayList<>();
         // 计算总价
@@ -92,20 +92,16 @@ public class OrderController {
      */
     // 获取订单信息, 并存入到 order_info 表中
     @RequestMapping(value = "checkIn", method = RequestMethod.POST)
-    public String checkIn(Integer[] ids, Integer address, String payMethod, HttpServletRequest request,
-                          HttpServletResponse response, Model model) throws UnsupportedEncodingException {
+    public void checkIn(Integer[] ids, Integer address, String payMethod, HttpServletRequest request,
+                        HttpServletResponse response) throws IOException, AlipayApiException {
+        // 获取当前用户
         UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
 
-        String productInCart = "";
-        Jedis jedis = new Jedis();
-        for (Map.Entry<String, String> entry : jedis.hgetAll("cart").entrySet()) {
-            if (uf.getUsername().equals(entry.getKey())) {
-                productInCart = entry.getValue();
-            }
-        }
+        String productInCart = this.cartService.getCartStrFromRedis(uf.getUsername());
+
         // 要支付的订单信息
         List<ProductInCart> productsInOrders = new ArrayList<>();
-        // 购物车中剩下的商品
+        // 购物车中剩余商品
         List<ProductInCart> productsInCartLeave = new ArrayList<>();
         if (StringUtils.hasText(productInCart)) {
             List<ProductInCart> productsInOrder = Arrays.asList(JsonUtil.jsonStrToArr(productInCart, ProductInCart.class));
@@ -115,35 +111,39 @@ public class OrderController {
                 if (Arrays.binarySearch(ids, pic.getPid()) >= 0) {
                     productsInOrders.add(pic);
                 } else {
-                    // 订单以外的商品加入到剩下商品列表中
+                    // 订单以外的商品加入到剩余商品列表中
                     productsInCartLeave.add(pic);
                 }
             }
         }
         UserAddress userAddress = this.userFrontService.selectAddressById(address);
-        this.orderService.generateOrder(productsInOrders, userAddress);
+        // 生成订单数据, 保存在数据库中, 返回主键
+        String oid = this.orderService.generateOrder(productsInOrders, userAddress, uf);
 
-        // 根据 payMethod 返回不同的支付页面
-
-
-        // 更新 cookie 和 redis 中的商品信息: 除去订单中的商品
+        // 1. 需要在提交订单后, 同步修改 redis 和 cookie 中的数据, 此处先修改 redis 中的数据;
+        // 待支付完成后跳转到 returnUrl() 中再更新 cookie, 以便响应 cookie
         String cartString = JsonUtil.objToJsonStr(productsInCartLeave);
+        this.cartService.setCartStrToRedis(uf.getUsername(), cartString);
 
-        if (Objects.nonNull(cartString)) {
-            // 更新剩下的
-            jedis.hset("cart", uf.getUsername(), cartString);
-            Cookie cookie = new Cookie("cart", URLEncoder.encode(cartString, "utf-8"));
-            cookie.setMaxAge(60 * 60 * 24 * 7);
-            cookie.setPath("/");
-            response.addCookie(cookie);
+        // 根据 payMethod 调用不同的支付方法
+        PrintWriter pw = response.getWriter();
+        response.setHeader("content-type", "text/html;charset=utf-8");
+        if ("alipay".equals(payMethod)) {
+            // 调用支付宝付款
+            // 写出页面, 进行付款
+            pw.write(alipay.pay(oid));
+        } else if ("wechat".equals(payMethod)) {
+            pw.write("<h2>微信付款</h2>");
         }
-        // 不能转发, 转发到 cart 后会重新获取 cookie, 并设置
-        // 应该直接返回
-        model.addAttribute("productsInCart", productsInCartLeave);
-        // 计算购物车中的商品总量信息: 页面上会进行计算, 此处可以省略
-        // model.addAttribute("productsInfoInCart", this.cartService.countProductInCart((ProductInCart[]) productsInCartLeave.toArray()));
-
-        return "front/cart";
     }
+
+    // 查询所有订单信息, 返回到 "我的订单" 中显示
+    @RequestMapping(value = "selectAllOrder", method = RequestMethod.GET)
+    public String selectAllOrder(Model model) {
+        List<OrderInfo> allOrders = this.orderService.selectAllOrder();
+        model.addAttribute("allOrders", allOrders);
+        return "front/allOrder";
+    }
+
 
 }

@@ -1,5 +1,7 @@
 package redis;
 
+import com.cdsxt.redis.RedisDao;
+import com.cdsxt.redis.impl.RedisDaoImpl;
 import org.testng.annotations.Test;
 import redis.clients.jedis.Jedis;
 
@@ -19,5 +21,11 @@ public class TestRedis {
         for (Map.Entry<String, String> entry : jedis.hgetAll("cart").entrySet()) {
             System.out.println(entry.getKey() + "," + entry.getValue());
         }
+    }
+
+    @Test
+    public void testGeyByKey() {
+        RedisDao rd = new RedisDaoImpl();
+        System.out.println(rd.getByKeyInCart("zen"));
     }
 }

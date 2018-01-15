@@ -19,4 +19,24 @@
         values(#{oid}, #{pid}, #{count}, #{buyPrice})
     </insert>
 
+    <!---->
+    <select id="selectOneById" resultType="orderInfo">
+        select oid, sum_price as sumPrice, order_time as orderTime, state, name, phone, addr, uid, logistics_comp as logisticsComp,
+        logistics_num as logisticsNum
+        from order_info
+        where oid = #{oid}
+    </select>
+
+    <!--更新订单状态-->
+    <update id="updateOrderState">
+        update order_info set state = #{1} where oid = #{0}
+    </update>
+
+    <!--查询所有订单信息-->
+    <select id="selectAllOrder" resultType="orderInfo">
+        select oid, sum_price as sumPrice, order_time as orderTime, state, name, phone, addr, uid, logistics_comp as logisticsComp,
+        logistics_num as logisticsNum
+        from order_info
+    </select>
+
 </mapper>

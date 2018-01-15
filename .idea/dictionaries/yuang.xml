@@ -1,12 +1,14 @@
 <component name="ProjectDictionaryState">
   <dictionary name="yuang">
     <words>
+      <w>addr</w>
       <w>alimaven</w>
       <w>alipay</w>
       <w>aliyun</w>
       <w>csid</w>
       <w>csname</w>
       <w>gson</w>
+      <w>jedis</w>
       <w>jsons</w>
       <w>pcount</w>
       <w>pdate</w>

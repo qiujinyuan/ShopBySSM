@@ -69,4 +69,17 @@ public class UserFront {
     public void setSecurityPhone(String securityPhone) {
         this.securityPhone = securityPhone;
     }
+
+    @Override
+    public String toString() {
+        return "UserFront{" +
+                "uid=" + uid +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", state=" + state +
+                ", securityEmail='" + securityEmail + '\'' +
+                ", securityPhone='" + securityPhone + '\'' +
+                '}';
+    }
 }

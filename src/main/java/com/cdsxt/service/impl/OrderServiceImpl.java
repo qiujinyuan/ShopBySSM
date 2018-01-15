@@ -27,10 +27,15 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private HttpServletRequest request;
 
+    /**
+     * @param productsInOrder 订单中的商品信息
+     * @param userAddress     收获地址
+     * @return 生成的订单的 UUID 主键
+     */
     // 生成订单信息
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public void generateOrder(List<ProductInCart> productsInOrder, UserAddress userAddress) {
+    public String generateOrder(List<ProductInCart> productsInOrder, UserAddress userAddress, UserFront userFront) {
         // 订单
         OrderInfo orderInfo = new OrderInfo();
         double sumPrice = 0;
@@ -43,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
         orderInfo.setName(userAddress.getName());
         orderInfo.setPhone(userAddress.getPhone().toString());
         orderInfo.setAddr(userAddress.getAddr());
-        orderInfo.setUid(((UserFront) request.getSession().getAttribute("curUser")).getUid());
+        orderInfo.setUid(userFront.getUid());
         orderInfo.setLogisticsComp(null);
         orderInfo.setLogisticsNum(null);
         /*Object obj = */
@@ -61,5 +66,23 @@ public class OrderServiceImpl implements OrderService {
             // 执行插入
             orderDao.generateOrderProductInfo(opi);
         }
+        return oid;
+    }
+
+    // 根据 id 查询订单记录
+    @Override
+    public OrderInfo selectOneById(String oid) {
+        return orderDao.selectOneById(oid);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public void updateOrderState(String oid, String state) {
+        this.orderDao.updateOrderState(oid, state);
+    }
+
+    @Override
+    public List<OrderInfo> selectAllOrder() {
+        return orderDao.selectAllOrder();
     }
 }

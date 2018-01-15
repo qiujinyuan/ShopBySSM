@@ -12,13 +12,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import redis.clients.jedis.Jedis;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Map;
+import java.net.URLEncoder;
 import java.util.Objects;
 
 @RequestMapping("carts")
@@ -41,8 +42,7 @@ public class CartController {
             UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
             if (Objects.nonNull(uf)) {
                 // 如果当前存在登陆用户: 更新 redis 中的数据
-                Jedis jedis = new Jedis("localhost", 6379);
-                jedis.hset("cart", uf.getUsername(), proInCart);
+                this.cartService.setCartStrToRedis(uf.getUsername(), proInCart);
             }
             ProductInCart[] productsInCart = JsonUtil.jsonStrToArr(proInCart, ProductInCart.class);
             if (Objects.nonNull(productsInCart) && productsInCart.length > 0) {
@@ -53,5 +53,23 @@ public class CartController {
             }
         }
         return "front/cart";
+    }
+
+
+    // 将 cookie 响应给客户端
+    public void setCartToCookie(String cookieStr, HttpServletResponse response) {
+        if (Objects.nonNull(cookieStr)) {
+            Cookie cookie = null;
+            try {
+                cookie = new Cookie("cart", URLEncoder.encode(cookieStr, "utf-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            // 设置有效期: 7 天
+            Objects.requireNonNull(cookie).setMaxAge(60 * 60 * 24 * 7);
+            // 设置路径, 所有页面都可以访问到
+            cookie.setPath("/");
+            response.addCookie(cookie);
+        }
     }
 }

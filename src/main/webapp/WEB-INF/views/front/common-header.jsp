@@ -45,7 +45,7 @@
                     </li>
                     <li id="headerLogin" class="headerLogin"
                         style="display: list-item;"><a
-                            href="order/query.do">我的订单</a> |
+                            href="order/selectAllOrder">我的订单</a> |
                     </li>
                     <li id="headerRegister" class="headerRegister"
                         style="display: list-item;">
