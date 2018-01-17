@@ -34,14 +34,15 @@
             <c:forEach items="${allOrders}" var="order">
                 <tr>
                     <td>${order.oid}</td>
-                    <td width="60">${order.sumPrice}</td>
-                    <td width="60">${order.orderTime}</td>
-                    <td width="60">${order.name}</td>
+                    <td>${order.sumPrice}</td>
+                    <td class="orderTime">${order.orderTime}</td>
+                    <td>${order.name}</td>
                     <td>
-                        <%--未支付, 则打开付款页面--%>
+                            <%--未支付, 则打开付款页面--%>
                         <c:choose>
-                            <c:when test="${order.state == '未付款'}">
-                                <a target="_blank" href="alipay/pay?oid=${order.pid}">${order.state}</a>
+                            <c:when test="${order.state == '未支付'}">
+                                <a target="_blank" href="alipay/pay?oid=${order.oid}"
+                                   style="color:red">${order.state}</a>
                             </c:when>
                             <c:otherwise>
                                 ${order.state}
@@ -59,3 +60,13 @@
 <%@ include file="common-footer.jsp" %>
 </body>
 </html>
+
+<script>
+    $(document).ready(function () {
+        $(".orderTime").each(function () {
+            var gmtDate = new Date($(this).html());
+            gmtDate.setTime(gmtDate.getTime() - 14 * 60 * 60 * 1000);
+            $(this).html(gmtDate.toLocaleString());
+        })
+    })
+</script>

@@ -142,6 +142,7 @@ public class OrderController {
     public String selectAllOrder(Model model) {
         List<OrderInfo> allOrders = this.orderService.selectAllOrder();
         model.addAttribute("allOrders", allOrders);
+        // model.addAttribute(:order)
         return "front/allOrder";
     }
 

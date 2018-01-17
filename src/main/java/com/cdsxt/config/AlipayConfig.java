@@ -27,12 +27,12 @@ public class AlipayConfig {
     public static String alipay_public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuvts1D3UmAOfrTXKTzi2kCxMBA98XjNwPKPeiDD7CPt35+WrmBcZQyXm8RpVVHB8gpUQwpzGsvI37yXXRrRUbPIPxu4eZr5VaJUYwBSUetixbdRCxv2Fz8FrknKQ70yZ0z9yahmMcXsgxSIbt5QcpWRP9zeWV+kHo0zJN/n0abNFhhH1zTqv6VRVCFf/IpP4Z5q5qQQRgVY3BaZVwlQ9K6t/cDvBC7lAt3GYa3IddtHRJ1VKc7s6BgA7fvKqFkT54ULezeWJYDh+MOzkJTxh18iaBcVAmHvSDbvTSb+qXrcs2d3o2M7BTS5jct2hvVjfa8wzg9YYQ455cse/a/irDwIDAQAB";
 
     // 服务器异步通知页面路径  需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
-    // public static String notify_url = "http://2ede0c42.ngrok.io/alipay/notifyUrl";
-    public static String notify_url = "http://localhost:8080/alipay/notifyUrl";
+    public static String notify_url = "http://0a9a0258.ngrok.io/alipay/notifyUrl";
+    // public static String notify_url = "http://localhost:8080/alipay/notifyUrl";
 
     // 页面跳转同步通知页面路径 需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
-    // public static String return_url = "http://2ede0c42.ngrok.io/alipay/returnUrl";
-    public static String return_url = "http://localhost:8080/alipay/returnUrl";
+    public static String return_url = "http://0a9a0258.ngrok.io/alipay/returnUrl";
+    // public static String return_url = "http://localhost:8080/alipay/returnUrl";
 
     // 签名方式
     public static String sign_type = "RSA2";

@@ -36,7 +36,8 @@
     <select id="selectAllOrder" resultType="orderInfo">
         select oid, sum_price as sumPrice, order_time as orderTime, state, name, phone, addr, uid, logistics_comp as logisticsComp,
         logistics_num as logisticsNum
-        from order_info
+        from order_info as oi
+        order by oi.order_time
     </select>
 
 </mapper>
