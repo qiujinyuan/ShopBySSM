@@ -7,6 +7,7 @@ import com.cdsxt.ro.UserFront;
 import com.cdsxt.vo.ProductInCart;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
 
@@ -20,5 +21,9 @@ public interface OrderService {
     void updateOrderState(String oid, String state);
 
     // 查询所有订单信息
-    List<OrderInfo> selectAllOrder();
+    List<OrderInfo> selectAllOrder(Integer uid);
+
+    // 根据时间, 状态以及收货人查询订单
+    List<OrderInfo> selectOrderWithParam(Map<String, Object> params);
+
 }

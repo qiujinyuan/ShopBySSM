@@ -4,6 +4,7 @@ import com.cdsxt.ro.OrderInfo;
 import com.cdsxt.ro.OrderProductInfo;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OrderDao {
 
@@ -18,5 +19,8 @@ public interface OrderDao {
     void updateOrderState(String oid, String state);
 
     // 查询所有订单信息
-    List<OrderInfo> selectAllOrder();
+    List<OrderInfo> selectAllOrder(Integer uid);
+
+    // 根据时间, 状态以及收货人查询订单
+    List<OrderInfo> selectOrderWithParam(Map<String, Object> params);
 }

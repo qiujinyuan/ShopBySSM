@@ -32,12 +32,39 @@
         update order_info set state = #{1} where oid = #{0}
     </update>
 
-    <!--查询所有订单信息-->
+    <!--查询指定用户的所有订单信息-->
     <select id="selectAllOrder" resultType="orderInfo">
         select oid, sum_price as sumPrice, order_time as orderTime, state, name, phone, addr, uid, logistics_comp as logisticsComp,
         logistics_num as logisticsNum
         from order_info as oi
+        where oi.uid = #{param1}
         order by oi.order_time
+    </select>
+
+    <!--根据时间, 状态以及收货人查询订单-->
+    <select id="selectOrderWithParam" resultType="orderInfo">
+        select oid, sum_price as sumPrice, order_time as orderTime, state, name, phone, addr, uid, logistics_comp as
+        logisticsComp,
+        logistics_num as logisticsNum
+        from order_info
+        where uid = #{uid}
+        <if test="orderTimeMin neq null">
+            <![CDATA[
+            and order_time >= #{orderTimeMin}
+            ]]>
+        </if>
+        <if test="orderTimeMax neq null">
+            <![CDATA[
+            and order_time <= #{orderTimeMax}
+            ]]>
+        </if>
+        <if test="name neq null and name neq ''">
+            and name = #{name}
+        </if>
+        <if test="state neq null and state neq ''">
+            and state = #{state}
+        </if>
+        order by order_time
     </select>
 
 </mapper>

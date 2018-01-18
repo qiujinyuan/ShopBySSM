@@ -20,6 +20,30 @@
         <div class="step step1" style="color: green;font-size: 20pt;font-weight: bold;">
             所有订单
         </div>
+        <%--搜索按钮--%>
+        <div class="span24">
+            <form action="order/selectOrderWithParam" method="post">
+                <div class="span6">
+                    <strong>订单状态: </strong>
+                    <input type="text" name="state">
+                </div>
+                <div class="span6">
+                    <strong>下单时间: </strong>
+                    <input type="date" name="orderTimeMin">
+                </div>
+                <div class="span6">
+                    <strong>~</strong>
+                    <input type="date" name="orderTimeMax">
+                </div>
+                <div class="span6">
+                    <strong>收货人: </strong>
+                    <input type="text" name="name">
+                </div>
+                <div class="span4" style="text-align: center">
+                    <input type="submit" value="搜索"/>
+                </div>
+            </form>
+        </div>
         <table>
             <thead>
             <tr>
@@ -41,7 +65,7 @@
                             <%--未支付, 则打开付款页面--%>
                         <c:choose>
                             <c:when test="${order.state == '未支付'}">
-                                <a target="_blank" href="alipay/pay?oid=${order.oid}"
+                                <a target="_blank" href="order/repay?oid=${order.oid}"
                                    style="color:red">${order.state}</a>
                             </c:when>
                             <c:otherwise>

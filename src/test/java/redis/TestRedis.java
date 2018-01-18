@@ -2,6 +2,7 @@ package redis;
 
 import com.cdsxt.redis.RedisDao;
 import com.cdsxt.redis.impl.RedisDaoImpl;
+import com.cdsxt.web.cntroller.OrderController;
 import org.testng.annotations.Test;
 import redis.clients.jedis.Jedis;
 
@@ -27,5 +28,10 @@ public class TestRedis {
     public void testGeyByKey() {
         RedisDao rd = new RedisDaoImpl();
         System.out.println(rd.getByKeyInCart("zen"));
+    }
+
+    @Test
+    public void testSelectOrder() {
+        OrderController oc = new OrderController();
     }
 }

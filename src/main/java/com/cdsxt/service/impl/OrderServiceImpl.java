@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -82,7 +83,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderInfo> selectAllOrder() {
-        return orderDao.selectAllOrder();
+    public List<OrderInfo> selectAllOrder(Integer uid) {
+        return orderDao.selectAllOrder(uid);
     }
+
+    @Override
+    public List<OrderInfo> selectOrderWithParam(Map<String, Object> params) {
+        return orderDao.selectOrderWithParam(params);
+    }
+
 }

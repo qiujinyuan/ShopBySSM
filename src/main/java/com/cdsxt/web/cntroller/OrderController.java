@@ -10,20 +10,19 @@ import com.cdsxt.service.UserFrontService;
 import com.cdsxt.util.JsonUtil;
 import com.cdsxt.vo.ProductInCart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 @RequestMapping("order")
 @Controller
@@ -32,6 +31,9 @@ public class OrderController {
 
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private CartController cartController;
 
     @Autowired
     private UserFrontService userFrontService;
@@ -92,8 +94,9 @@ public class OrderController {
      */
     // 获取订单信息, 并存入到 order_info 表中
     @RequestMapping(value = "checkIn", method = RequestMethod.POST)
-    public void checkIn(Integer[] ids, Integer address, String payMethod, HttpServletRequest request,
-                        HttpServletResponse response) throws IOException, AlipayApiException {
+    @ResponseBody
+    public String checkIn(Integer[] ids, Integer address, String payMethod, HttpServletRequest request,
+                          HttpServletResponse response) throws IOException, AlipayApiException {
         // 获取当前用户
         UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
 
@@ -124,27 +127,66 @@ public class OrderController {
         // 待支付完成后跳转到 returnUrl() 中再更新 cookie, 以便响应 cookie
         String cartString = JsonUtil.objToJsonStr(productsInCartLeave);
         this.cartService.setCartStrToRedis(uf.getUsername(), cartString);
+        // 2. 更新 cookie 中的数据
+        this.cartController.setCartToCookie(cartString, response);
 
         // 根据 payMethod 调用不同的支付方法
-        PrintWriter pw = response.getWriter();
-        response.setHeader("content-type", "text/html;charset=utf-8");
         if ("alipay".equals(payMethod)) {
             // 调用支付宝付款
             // 写出页面, 进行付款
-            pw.write(alipay.pay(oid));
+            return alipay.pay(oid);
         } else if ("wechat".equals(payMethod)) {
-            pw.write("<h2>微信付款</h2>");
+            return "<h2>微信付款</h2>";
+        } else {
+            return "其他方式";
         }
+
     }
 
-    // 查询所有订单信息, 返回到 "我的订单" 中显示
+    // 查询当前用户的所有订单信息, 返回到 "我的订单" 中显示
     @RequestMapping(value = "selectAllOrder", method = RequestMethod.GET)
-    public String selectAllOrder(Model model) {
-        List<OrderInfo> allOrders = this.orderService.selectAllOrder();
+    public String selectAllOrder(Model model, HttpServletRequest request) {
+        UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
+        List<OrderInfo> allOrders = this.orderService.selectAllOrder(uf.getUid());
         model.addAttribute("allOrders", allOrders);
-        // model.addAttribute(:order)
         return "front/allOrder";
     }
 
+
+    // 重新付款: 对未付款订单
+    @RequestMapping(value = "repay")
+    @ResponseBody
+    public String repay(String oid) throws UnsupportedEncodingException, AlipayApiException {
+        return alipay.pay(oid);
+    }
+
+
+    /**
+     * 根据时间, 状态以及收货人查询订单
+     *
+     * @param orderTimeMin 下单时间开始日期
+     * @param orderTimeMax 下单时间截止日期
+     * @param name         收货人
+     * @param state        订单状态
+     * @return
+     */
+    @RequestMapping(value = "selectOrderWithParam")
+    public String selectOrderWithParam(@DateTimeFormat(pattern = "yyyy-MM-dd") Date orderTimeMin,
+                                       @DateTimeFormat(pattern = "yyyy-MM-dd") Date orderTimeMax,
+                                       String name, String state, Model model, HttpServletRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("orderTimeMin", orderTimeMin);
+        params.put("orderTimeMax", orderTimeMax);
+        params.put("name", name);
+        params.put("state", state);
+        // 当前登陆用户
+        UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
+        // 指定查询哪个用户
+        params.put("uid", uf.getUid());
+
+        List<OrderInfo> orders = this.orderService.selectOrderWithParam(params);
+        model.addAttribute("allOrders", orders);
+        return "front/allOrder";
+    }
 
 }

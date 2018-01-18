@@ -7,7 +7,6 @@ import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.cdsxt.config.AlipayConfig;
 import com.cdsxt.ro.OrderInfo;
-import com.cdsxt.ro.UserFront;
 import com.cdsxt.service.CartService;
 import com.cdsxt.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +37,6 @@ public class Alipay {
     private OrderService orderService;
 
     @Autowired
-    private CartController cartController;
-
-    @Autowired
     private CartService cartService;
 
     /**
@@ -49,7 +45,6 @@ public class Alipay {
      * @param oid 订单的 id
      * @return result 用于输出页面
      */
-    @RequestMapping(value = "pay", method = RequestMethod.GET)
     public String pay(String oid) throws AlipayApiException, UnsupportedEncodingException {
 
         // 查询出订单信息
@@ -71,6 +66,15 @@ public class Alipay {
         String subject = new String(("收货人: " + orderInfo.getName() + ", 下单日期: " + orderInfo.getOrderTime()).getBytes("ISO-8859-1"), "UTF-8");
         //商品描述，可空
         String body = new String(("收获地址:" + orderInfo.getAddr()).getBytes("ISO-8859-1"), "UTF-8");
+
+/*        //商户订单号，商户网站订单系统中唯一订单号，必填
+        String out_trade_no = oid;
+        //付款金额，必填
+        String total_amount = orderInfo.getSumPrice() + "";
+        //订单名称，必填
+        String subject = "收货人: " + orderInfo.getName() + ", 下单日期: " + orderInfo.getOrderTime();
+        //商品描述，可空
+        String body = "收获地址:" + orderInfo.getAddr();*/
 
         alipayRequest.setBizContent("{\"out_trade_no\":\"" + out_trade_no + "\","
                 + "\"total_amount\":\"" + total_amount + "\","
@@ -94,8 +98,8 @@ public class Alipay {
     /**
      * 同步
      *
-     * @param outTradeNo 商户订单号, 即 order_info的主键
-     * @return 到购物车页面
+     * @param request 请求, 其中包含商户订单号, 即 order_info的主键
+     * @return 到支付成功页面
      */
     @RequestMapping(value = "returnUrl", method = RequestMethod.GET)
     public String returnUrl(HttpServletRequest request, HttpServletResponse response, Model model) throws UnsupportedEncodingException, AlipayApiException {
@@ -118,10 +122,6 @@ public class Alipay {
             // 1. 存储订单详细信息
             model.addAttribute("orderInfo", orderInfo);
 
-            // 2. 更新 cookie 中的数据
-            // 查询出 redis 中支付之前保存的购物车信息
-            UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
-            this.cartController.setCartToCookie(this.cartService.getCartStrFromRedis(uf.getUsername()), response);
             // 返回到支付成功同步通知页面
             return "pay/return_url";
 
@@ -144,6 +144,7 @@ public class Alipay {
     public void notifyUrl(HttpServletRequest request, HttpServletResponse response) throws IOException, AlipayApiException {
 
         boolean signVerified = this.verifySignature(request);
+        System.out.println("验签: " + signVerified);
 
         PrintWriter pw = response.getWriter();
         response.setHeader("content-type", "text/html;charset=utf-8");
