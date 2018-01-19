@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdsxt.dao.UserDao">
+
+    <!--查询用户, 前端用户-->
+    <select id="selectOneByName" resultType="user">
+        select uid, username, password, name, state, security_email as securityEmail, security_phone as securityPhone
+        from user_front
+        where username = #{username}
+    </select>
+
+    <!--查询后台用户: 客服-->
+    <select id="selectBackUserByName" resultType="user">
+        select uid, username, password, name
+        from user_back
+        where username = #{username}
+    </select>
+
+    <select id="selectUserAddressById" resultType="userAddress">
+        select id, name, phone, addr, user_id as uid from receive_user_info where user_id = #{uid}
+    </select>
+
+    <!--// 根据地址 id 查询收货信息-->
+    <select id="selectAddressById" resultType="userAddress">
+        select id, name, phone, addr, user_id as uid from receive_user_info where id = #{uid}
+    </select>
+
+    <!--// 查询所有用户-->
+    <select id="selectAllFrontUser" resultType="user">
+        select uid, username, password, name, state, security_email as securityEmail, security_phone as securityPhone
+        from user_front
+    </select>
+
+    <!--// 查询所有客服-->
+    <select id="selectAllBackUser" resultType="user">
+        select uid, username, password, name
+        from user_back
+    </select>
+</mapper>

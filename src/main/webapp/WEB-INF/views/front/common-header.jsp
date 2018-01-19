@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+
+
 <script type="text/javascript" src="assets/js/cookie-util.js"></script>
 <script type="text/javascript">
     function loginOut() {
@@ -33,15 +35,16 @@
                         style="display: list-item;"><a href="shop/login">登录</a>|
                     </li>
                     <li id="headerLogin" class="headerLogin"
-                        style="display: list-item;"><a href="shop/login">管理员登录</a>|
+                        style="display: list-item;"><a href="shop/backUserLogin">客服登录</a>|
                     </li>
                     <li id="headerRegister" class="headerRegister"
                         style="display: list-item;"><a href="shop/login">注册</a>|
                     </li>
                 </c:if>
-                <c:if test="${curUser!=null}">
+
+                <c:if test="${curUser!=null && curUser.type == 'frontUser'}">
                     <li id="headerLogin" class="headerLogin"
-                        style="display: list-item;"> ${curUser.username}|
+                        style="display: list-item;"> ${curUser.name}|
                     </li>
                     <li id="headerLogin" class="headerLogin"
                         style="display: list-item;"><a
@@ -51,9 +54,22 @@
                         style="display: list-item;">
                         <a href="javascript:void(0)" onclick="loginOut();">退出</a>
                     </li>
-
                 </c:if>
 
+                <c:if test="${curUser!=null && curUser.type == 'backUser'}">
+                    <li id="headerLogin" class="headerLogin"
+                        style="display: list-item;"> ${curUser.name}|
+                    </li>
+                    <li id="headerLogin" class="headerLogin"
+                        style="display: list-item;"><a
+                            href="#">待处理事项</a> |
+                    </li>
+                    <li id="headerRegister" class="headerRegister"
+                        style="display: list-item;">
+                            <%--todo 客服退出登录--%>
+                        <a href="javascript:void(0)" onclick="loginOut();">退出</a>
+                    </li>
+                </c:if>
                 <li><a>会员中心</a> |</li>
                 <li><a>购物指南</a> |</li>
                 <li><a>关于我们</a> |</li>
@@ -96,6 +112,5 @@
             </c:forEach>
         </ul>
     </div>
-
 </div>
 <hr width="60%">

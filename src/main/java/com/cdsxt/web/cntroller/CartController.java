@@ -2,7 +2,7 @@ package com.cdsxt.web.cntroller;
 
 // 购物车
 
-import com.cdsxt.ro.UserFront;
+import com.cdsxt.ro.User;
 import com.cdsxt.service.CartService;
 import com.cdsxt.util.CookieUtil;
 import com.cdsxt.util.JsonUtil;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import redis.clients.jedis.Jedis;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +38,7 @@ public class CartController {
         if (StringUtils.hasText(proInCart)) {
             // 解码
             proInCart = URLDecoder.decode(proInCart, "utf-8");
-            UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
+            User uf = (User) request.getSession().getAttribute("curUser");
             if (Objects.nonNull(uf)) {
                 // 如果当前存在登陆用户: 更新 redis 中的数据
                 this.cartService.setCartStrToRedis(uf.getUsername(), proInCart);

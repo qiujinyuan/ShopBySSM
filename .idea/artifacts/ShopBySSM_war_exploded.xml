@@ -32,6 +32,7 @@
           <element id="library" level="project" name="Maven: org.apache.commons:commons-pool2:2.4.2" />
           <element id="library" level="project" name="Maven: org.mongodb:mongo-java-driver:3.4.0" />
           <element id="library" level="project" name="Maven: com.alibaba:fastjson:1.2.44" />
+          <element id="library" level="module" name="Maven: com.alipay.api:alipay-sdk:1.0.0" module-name="ShopBySSM" />
         </element>
       </element>
       <element id="directory" name="META-INF">

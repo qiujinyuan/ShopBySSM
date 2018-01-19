@@ -1,8 +1,8 @@
 package com.cdsxt.web.cntroller;
 
-import com.cdsxt.ro.UserFront;
+import com.cdsxt.ro.User;
 import com.cdsxt.service.CartService;
-import com.cdsxt.service.UserFrontService;
+import com.cdsxt.service.UserService;
 import com.cdsxt.util.CookieUtil;
 import com.cdsxt.util.JsonUtil;
 import com.cdsxt.vo.ProductInCart;
@@ -13,12 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +27,7 @@ import java.util.Objects;
 public class LoginController {
 
     @Autowired
-    private UserFrontService userFrontService;
+    private UserService userService;
 
     @Autowired
     private CartService cartService;
@@ -43,14 +41,21 @@ public class LoginController {
         return "front/login";
     }
 
-    // 验证登陆
+    @RequestMapping(value = {"backUserLogin"}, method = RequestMethod.GET)
+    public String backUserLogin() {
+        return "front/backUserLogin";
+    }
+
+    // 用户验证登陆
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public String login(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password,
                         HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         // 根据用户名查询, 如果存在则匹配密码, 正确则将当前用户存储在 session 中, 然后跳转到商城首页
-        UserFront uf = this.userFrontService.selectOneByName(username);
+        User uf = this.userService.selectOneByName(username);
         if (Objects.nonNull(uf) && uf.getPassword().equals(password)) {
             // 密码正确; 将当前用户存储 session 作用域中
+            // 设置为 用户
+            uf.setType("frontUser");
             request.getSession().setAttribute("curUser", uf);
 
             // 同时获取购物车: 其中可能包括该用户未登陆时选择的商品信息
@@ -127,7 +132,7 @@ public class LoginController {
     // 退出登录
     @RequestMapping(value = "loginOut", method = RequestMethod.GET)
     public String loginOut(HttpServletRequest request) {
-        UserFront curUser = (UserFront) request.getSession().getAttribute("curUser");
+        User curUser = (User) request.getSession().getAttribute("curUser");
         if (Objects.nonNull(curUser)) {
             // 使 session 失效
             request.getSession().invalidate();
@@ -139,5 +144,23 @@ public class LoginController {
     @RequestMapping(value = "index", method = RequestMethod.GET)
     public String index() {
         return "front/index";
+    }
+
+    // 客服登陆功能
+    @RequestMapping(value = "backUserLogin", method = RequestMethod.POST)
+    public String backUserLogin(@RequestParam(value = "username") String username,
+                                @RequestParam(value = "password") String password,
+                                HttpServletRequest request) {
+        // 根据用户名查询, 如果存在则匹配密码, 正确则将当前用户存储在 session 中, 然后跳转到商城首页
+        User uf = this.userService.selectBackUserByName(username);
+        if (Objects.nonNull(uf) && uf.getPassword().equals(password)) {
+            // 密码正确; 将当前用户存储 session 作用域中
+            // 设置为 客服
+            uf.setType("backUser");
+            request.getSession().setAttribute("curUser", uf);
+            // 请求转发
+            return "forward:/products/index";
+        }
+        return "front/backUserLogin";
     }
 }

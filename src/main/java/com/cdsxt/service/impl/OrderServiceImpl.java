@@ -3,8 +3,8 @@ package com.cdsxt.service.impl;
 import com.cdsxt.dao.OrderDao;
 import com.cdsxt.ro.OrderInfo;
 import com.cdsxt.ro.OrderProductInfo;
+import com.cdsxt.ro.User;
 import com.cdsxt.ro.UserAddress;
-import com.cdsxt.ro.UserFront;
 import com.cdsxt.service.OrderService;
 import com.cdsxt.vo.ProductInCart;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     // 生成订单信息
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public String generateOrder(List<ProductInCart> productsInOrder, UserAddress userAddress, UserFront userFront) {
+    public String generateOrder(List<ProductInCart> productsInOrder, UserAddress userAddress, User user) {
         // 订单
         OrderInfo orderInfo = new OrderInfo();
         double sumPrice = 0;
@@ -49,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
         orderInfo.setName(userAddress.getName());
         orderInfo.setPhone(userAddress.getPhone().toString());
         orderInfo.setAddr(userAddress.getAddr());
-        orderInfo.setUid(userFront.getUid());
+        orderInfo.setUid(user.getUid());
         orderInfo.setLogisticsComp(null);
         orderInfo.setLogisticsNum(null);
         /*Object obj = */

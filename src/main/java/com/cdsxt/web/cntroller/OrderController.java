@@ -2,11 +2,11 @@ package com.cdsxt.web.cntroller;
 
 import com.alipay.api.AlipayApiException;
 import com.cdsxt.ro.OrderInfo;
+import com.cdsxt.ro.User;
 import com.cdsxt.ro.UserAddress;
-import com.cdsxt.ro.UserFront;
 import com.cdsxt.service.CartService;
 import com.cdsxt.service.OrderService;
-import com.cdsxt.service.UserFrontService;
+import com.cdsxt.service.UserService;
 import com.cdsxt.util.JsonUtil;
 import com.cdsxt.vo.ProductInCart;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class OrderController {
     private CartController cartController;
 
     @Autowired
-    private UserFrontService userFrontService;
+    private UserService userService;
 
     @Autowired
     private OrderService orderService;
@@ -53,7 +53,7 @@ public class OrderController {
     @RequestMapping(value = "checkIn", method = RequestMethod.GET)
     public String checkIn(Integer[] ids, HttpServletRequest request, Model model) {
         // 获取当前用户
-        UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
+        User uf = (User) request.getSession().getAttribute("curUser");
 
         String productInCart = this.cartService.getCartStrFromRedis(uf.getUsername());
 
@@ -77,7 +77,7 @@ public class OrderController {
             model.addAttribute("sumPrice", sumPrice);
         }
         // 存入用户的收获地址信息
-        model.addAttribute("userAddresses", this.userFrontService.selectUserAddressById(uf.getUid()));
+        model.addAttribute("userAddresses", this.userService.selectUserAddressById(uf.getUid()));
         // 将需要结算的商品 id 返回, 以便下次获取
         model.addAttribute("ids", Arrays.toString(ids).substring(1, Arrays.toString(ids).length() - 1));
         return "front/order";
@@ -98,7 +98,7 @@ public class OrderController {
     public String checkIn(Integer[] ids, Integer address, String payMethod, HttpServletRequest request,
                           HttpServletResponse response) throws IOException, AlipayApiException {
         // 获取当前用户
-        UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
+        User uf = (User) request.getSession().getAttribute("curUser");
 
         String productInCart = this.cartService.getCartStrFromRedis(uf.getUsername());
 
@@ -119,7 +119,7 @@ public class OrderController {
                 }
             }
         }
-        UserAddress userAddress = this.userFrontService.selectAddressById(address);
+        UserAddress userAddress = this.userService.selectAddressById(address);
         // 生成订单数据, 保存在数据库中, 返回主键
         String oid = this.orderService.generateOrder(productsInOrders, userAddress, uf);
 
@@ -146,7 +146,7 @@ public class OrderController {
     // 查询当前用户的所有订单信息, 返回到 "我的订单" 中显示
     @RequestMapping(value = "selectAllOrder", method = RequestMethod.GET)
     public String selectAllOrder(Model model, HttpServletRequest request) {
-        UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
+        User uf = (User) request.getSession().getAttribute("curUser");
         List<OrderInfo> allOrders = this.orderService.selectAllOrder(uf.getUid());
         model.addAttribute("allOrders", allOrders);
         return "front/allOrder";
@@ -180,7 +180,7 @@ public class OrderController {
         params.put("name", name);
         params.put("state", state);
         // 当前登陆用户
-        UserFront uf = (UserFront) request.getSession().getAttribute("curUser");
+        User uf = (User) request.getSession().getAttribute("curUser");
         // 指定查询哪个用户
         params.put("uid", uf.getUid());
 

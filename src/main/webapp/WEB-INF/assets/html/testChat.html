@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天</title>
+    <script src="../js/jquery-1.8.3.js"></script>
+</head>
+<body>
+当前用户ID:
+<sapn id="curId"></sapn>
+<br>
+消息内容: <input type="text" id="info">
+接收人ID: <input type="text" id="receive">
+<br>
+<input type="button" value="发送">
+<br>
+<h3>消息列表</h3>
+<div id="msgList">
+
+</div>
+
+</body>
+<script>
+    var chat = {};
+    chat.uri = "/chat";
+    if (window['WebSocket']) {
+        chat.socket = new WebSocket("ws://" + window.location.host + chat.uri);
+    } else if (window["MozWebSocket"]) {
+        chat.socket = new MozWebSocket("ws://" + window.location.host + chat.uri);
+    } else {
+        alert("不支持 WebSocket 聊天");
+    }
+    chat.socket.onopen = function () {
+        var msg = {msg: '请求建立连接'};
+        chat.socket.send(JSON.stringify(msg));
+    };
+    chat.socket.onmessage = function (message) {
+        eval("var msg = " + message.data);
+        // 发送回来的是当前用户 ID
+        if (msg.id) {
+            $("#curId").html(msg.id);
+        } else if (msg.info) {
+            // 发送回来的是消息
+            var $infoDiv = $("#msgList");
+            var oldInfo = $infoDiv.html();
+            $infoDiv.html(oldInfo +  "发送方:" + msg.sendId + ", 消息内容:" + msg.info + "<br>");
+        }
+    };
+    chat.socket.onclose = function () {
+        console.log("连接断开");
+    };
+    chat.socket.onerror = function () {
+        console.log("连接出错");
+    };
+    // 点击按钮发送消息
+    $("input[type='button']").on("click", function () {
+        var msg = {msg: $('#info').val(), receive: $('#receive').val()};
+        chat.socket.send(JSON.stringify(msg));
+    });
+</script>
+</html>

@@ -8,9 +8,14 @@
       <w>csid</w>
       <w>csname</w>
       <w>gson</w>
+      <w>hashtable</w>
       <w>iter</w>
       <w>jedis</w>
       <w>jsons</w>
+      <w>onclose</w>
+      <w>onerror</w>
+      <w>onmessage</w>
+      <w>onopen</w>
       <w>pcount</w>
       <w>pdate</w>
       <w>pdesc</w>

@@ -18,11 +18,11 @@ import java.util.List;
 public class ChatInfoDaoImpl implements ChatInfoDao {
 
     @Autowired
-    private static MongoClient mongoClient;
+    private MongoClient mongoClient;
 
-    static {
+/*    static {
         mongoClient = new MongoClient();
-    }
+    }*/
 
     // 只需要操作 chat_info 集合即可
     private MongoCollection<Document> getCollection(String collectionName) {

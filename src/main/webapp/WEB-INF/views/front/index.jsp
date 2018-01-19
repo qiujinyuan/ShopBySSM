@@ -13,6 +13,7 @@
     <!-- 基本页面-元信息 -->
     <%@ include file="common-base.jsp" %>
 
+
     <script type="text/javascript">
         //查看cookie
         //document.write(document.cookie);
@@ -20,9 +21,19 @@
 </head>
 <body>
 
-
 <!-- 头部页面 -->
 <%@ include file="common-header.jsp" %>
+
+<%--聊天页面 js, css 等内容--%>
+<%@ include file="../chat/chat_head.jsp" %>
+<%--聊天窗口--%>
+<%@ include file="../chat/chat_body.jsp" %>
+<%--显示聊天窗口--%>
+<div class="showChatBtn">
+    <a href="javascript:void(0);" onclick="initChatWin();">
+        <img src="assets/chat/img/chat_log.jpg">
+    </a>
+</div>
 
 <!-- 中间页面 -->
 <div class="container index">
@@ -94,5 +105,63 @@
 </div>
 <!-- 底部页面  -->
 <%@ include file="common-footer.jsp" %>
+
 </body>
 </html>
+
+<script>
+    var chat = {};
+    chat.uri = "/chat";
+
+    // 打开聊天窗口之后, 才建立连接; 刷新页面后, 断开连接
+    function initChatWin() {
+        //显示窗口
+        document.getElementById('light').style.display = 'block';
+        document.getElementById('fade').style.display = 'block';
+    }
+
+    if (window['WebSocket']) {
+        chat.socket = new WebSocket("ws://" + window.location.host + chat.uri);
+    } else if (window["MozWebSocket"]) {
+        chat.socket = new MozWebSocket("ws://" + window.location.host + chat.uri);
+    } else {
+        alert("不支持 WebSocket 聊天");
+    }
+
+    // 接收消息, 根据 dataType 判断类型
+    chat.socket.onmessage = function (message) {
+        var msg = JSON.parse(message.data);
+        // eval("var msg = " + message.data);
+        if (msg.dataType === "userList") {
+            // 返回的是用户列表
+            var userListArr = msg["userList"];
+            console.log(userListArr);
+            // 列表区
+            var $userList = $(".chat03_content").find("ul");
+            // 清空之前的列表
+            $userList.find("li").each(function () {
+                $(this).remove();
+            });
+            // 加载新的列表
+            for (var i in userListArr) {
+                var $li = $("<li>").appendTo($userList);
+                $li.addClass("choosed");
+                var online = userListArr[i].online == true ? "online" : "offline";
+                $("<label class='" + online + "'></lable>").appendTo($li);
+                var $a1 = $("<a href='javascript:;'></a>").appendTo($li);
+                $("<img src='assets/chat/img/head/2015.jpg'>").appendTo($a1);
+                var $a2 = $("<a href='javascript:;'>"+userListArr[i].name+"</a>").appendTo($li);
+                $a2.addClass("chat03_name");
+            }
+        } else {
+
+        }
+    };
+
+
+    //
+    // function openConnect() {
+    //     var msg = {msg: '请求建立连接'};
+    //     chat.socket.send(JSON.stringify(msg));
+    // }
+</script>
