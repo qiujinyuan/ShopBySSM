@@ -1,6 +1,7 @@
 package com.cdsxt.service.impl;
 
 import com.cdsxt.dao.ProductDao;
+import com.cdsxt.mangodb.ChatInfoDao;
 import com.cdsxt.ro.Product;
 import com.cdsxt.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;

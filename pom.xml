@@ -36,7 +36,7 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>6.9.10</version>
-            <scope>com.cdsxt.test</scope>
+            <scope>test</scope>
         </dependency>
 
         <!--链接 mysql 的驱动-->
@@ -144,6 +144,28 @@
             <version>2.9.0</version>
         </dependency>
 
+        <!--mongodb-->
+        <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.44</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.api</groupId>
+            <artifactId>alipay-sdk</artifactId>
+            <scope>system</scope>
+            <version>1.0.0</version>
+            <systemPath>D:/Java/lib/alipay/alipay-sdk-java20170324180803.jar</systemPath>
+        </dependency>
 
     </dependencies>
 
@@ -182,7 +204,6 @@
                     </connectors>
                 </configuration>
             </plugin>
-
 
         </plugins>
     </build>
