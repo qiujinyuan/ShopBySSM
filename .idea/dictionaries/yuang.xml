@@ -10,8 +10,10 @@
       <w>gson</w>
       <w>hashtable</w>
       <w>iter</w>
+      <w>jbox</w>
       <w>jedis</w>
       <w>jsons</w>
+      <w>msgs</w>
       <w>onclose</w>
       <w>onerror</w>
       <w>onmessage</w>

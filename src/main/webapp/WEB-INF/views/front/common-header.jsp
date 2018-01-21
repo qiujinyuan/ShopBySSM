@@ -2,14 +2,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 
-
 <script type="text/javascript" src="assets/js/cookie-util.js"></script>
 <script type="text/javascript">
     function loginOut() {
         //清除cookie购物车
         Cookie.delCookie('cart');
         //请求到后台注销
-        window.location.href = "shop/loginOut";
+        window.open("shop/loginOut", "_self");
     }
 </script>
 
@@ -44,7 +43,7 @@
 
                 <c:if test="${curUser!=null && curUser.type == 'frontUser'}">
                     <li id="headerLogin" class="headerLogin"
-                        style="display: list-item;"> ${curUser.name}|
+                        style="display: list-item;"> ${curUser.name}|<img src="assets/chat/img/head/${curUser.img}" width="30%"/>|
                     </li>
                     <li id="headerLogin" class="headerLogin"
                         style="display: list-item;"><a

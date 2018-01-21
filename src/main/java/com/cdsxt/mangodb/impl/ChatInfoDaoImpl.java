@@ -42,8 +42,8 @@ public class ChatInfoDaoImpl implements ChatInfoDao {
     @Override
     public List<ChatInfo> queryChatInfoNoRead(Integer userId) {
         String str = "{" +
-                "isRead:true," +
-                "sendUserId:" + userId +
+                "isRead:false," +
+                "receiveUserId:" + userId +
                 "}";
         return this.query(str);
     }

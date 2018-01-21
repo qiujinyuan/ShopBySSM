@@ -6,6 +6,7 @@ import com.cdsxt.service.UserService;
 import com.cdsxt.util.CookieUtil;
 import com.cdsxt.util.JsonUtil;
 import com.cdsxt.vo.ProductInCart;
+import com.cdsxt.web.chat.ChatController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -135,7 +136,10 @@ public class LoginController {
         User curUser = (User) request.getSession().getAttribute("curUser");
         if (Objects.nonNull(curUser)) {
             // 使 session 失效
-            request.getSession().invalidate();
+            // request.getSession().invalidate();
+            // 移除当前用户
+            ChatController.sessionMap.remove(curUser);
+            request.getSession().removeAttribute("curUser");
         }
         return "redirect:/shop";
     }
