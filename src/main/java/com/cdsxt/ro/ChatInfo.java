@@ -38,12 +38,11 @@ public class ChatInfo {
         this.id = id;
     }
 
-    public Boolean getRead() {
-        return isRead;
+    public void setIsRead(Boolean isRead) {
+        this.isRead = isRead;
     }
-
-    public void setRead(Boolean read) {
-        isRead = read;
+    public Boolean getIsRead() {
+        return this.isRead;
     }
 
     public String getMsgContent() {
@@ -125,4 +124,5 @@ public class ChatInfo {
                 ", sendUserType='" + sendUserType + '\'' +
                 '}';
     }
+
 }

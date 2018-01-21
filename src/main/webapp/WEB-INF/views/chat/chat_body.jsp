@@ -12,6 +12,7 @@
                     <a class="close_btn" href="javascript:;"></a>
                 </div>
                 <div class="chat01_content">
+                    <%--初始化 10 个用户--%>
                     <c:forEach begin="1" end="10" step="1" var="num">
                         <c:if test="${num==3}" var="numTest">
                             <div class="message_box mes${num}" style="display: block;"></div>
@@ -34,8 +35,9 @@
                            menu="false" type="application/x-shockwave-flash"
                            src="http://service.weibo.com/staticjs/tools/upload.swf?v=36c9997f1313d1c4"
                            id="swf_3140"/>
-                </a> <label class="chat02_title_t"> <a href="####"
-                                                       target="_blank">聊天记录</a></label>
+                </a> <label class="chat02_title_t">
+                    <%--todo 点击聊天记录后, 显示所有消息--%>
+                    <a href="####" target="_blank">聊天记录</a></label>
                     <div class="wl_faces_box">
                         <div class="wl_faces_content">
                             <div class="title">
@@ -68,7 +70,8 @@
                 <div class="chat02_bar">
                     <ul>
                         <li style="right: 5px; top: 5px;"><a href="javascript:;">
-                            <img src="assets/chat/img/send_btn.jpg"/>
+                            <img src="assets/chat/img/send_btn.jpg"
+                                 onclick="sendBtnMessage('${curUser.name}', '${curUser.uid}', '${curUser.img}')"/>
                         </a></li>
                     </ul>
                 </div>

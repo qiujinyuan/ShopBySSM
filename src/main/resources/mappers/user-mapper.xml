@@ -4,14 +4,14 @@
 
     <!--查询用户, 前端用户-->
     <select id="selectOneByName" resultType="user">
-        select uid, username, password, name, state, security_email as securityEmail, security_phone as securityPhone
+        select uid, username, password, name, state, img, security_email as securityEmail, security_phone as securityPhone
         from user_front
         where username = #{username}
     </select>
 
     <!--查询后台用户: 客服-->
     <select id="selectBackUserByName" resultType="user">
-        select uid, username, password, name
+        select uid, username, password, name, img
         from user_back
         where username = #{username}
     </select>
@@ -27,13 +27,13 @@
 
     <!--// 查询所有用户-->
     <select id="selectAllFrontUser" resultType="user">
-        select uid, username, password, name, state, security_email as securityEmail, security_phone as securityPhone
+        select uid, username, password, name, state, img, security_email as securityEmail, security_phone as securityPhone
         from user_front
     </select>
 
     <!--// 查询所有客服-->
     <select id="selectAllBackUser" resultType="user">
-        select uid, username, password, name
+        select uid, username, password, name, img
         from user_back
     </select>
 </mapper>

@@ -1,6 +1,7 @@
 package com.cdsxt.web.chat;
 
 import com.cdsxt.config.GetHttpSessionConfigurator;
+import com.cdsxt.ro.ChatInfo;
 import com.cdsxt.ro.User;
 import com.cdsxt.service.ChatService;
 import com.cdsxt.util.JsonUtil;
@@ -10,10 +11,7 @@ import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ServerEndpoint(value = "/chat", configurator = GetHttpSessionConfigurator.class)
 public class ChatController {
@@ -21,7 +19,7 @@ public class ChatController {
     private HttpSession httpSession;
 
     // 使用线程安全的 Hashtable
-    private static Map<User, Session> sessionMap = new Hashtable<>();
+    public static Map<User, Session> sessionMap = new Hashtable<>();
 
     // 获取 bean
     private ChatService chatService = (ChatService) ContextLoader.getCurrentWebApplicationContext().getBean(ChatService.class);
@@ -34,12 +32,17 @@ public class ChatController {
         httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
 
         User curUser = this.getCurUser();
-        // 修改用户在线状态为 true
-        curUser.setOnline(true);
-        // 保存到登录用户列表中
-        sessionMap.put(curUser, session);
-        // 返回用户列表
-        session.getBasicRemote().sendText(this.getUserList(curUser));
+        // 为空表示尚未登陆
+        if (Objects.nonNull(curUser)) {
+            // 修改用户在线状态为 true
+            curUser.setOnline(true);
+            // 保存到登录用户列表中
+            sessionMap.put(curUser, session);
+            // 用户上线, 通知所有在线用户, 发送用户列表, 包括当前用户
+            for (Map.Entry<User, Session> entry : sessionMap.entrySet()) {
+                entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
+            }
+        }
     }
 
     // 获取当前登陆用户
@@ -65,29 +68,71 @@ public class ChatController {
         return "{\"dataType\":\"userList\", \"userList\":" + JsonUtil.objToJsonStr(userList) + "}";
     }
 
-/*    @OnMessage
+    // 前台传给后台的数据
+    @OnMessage
     public void onMessage(Session session, String message) throws IOException {
         System.out.println("客服端 " + session.getId() + " 发送消息: " + message);
-        for (Map.Entry<String, Session> entry : sessionMap.entrySet()) {
-            if (!entry.getKey().equals(session.getId())) {
-                // 指定用户发送消息
-                // {msg: $('#info').val(), receive: $('#receive').val()}
-                Map<String, String> msgMap = JsonUtil.jsonStrToMap(message);
-                System.out.println(msgMap);
-                // 如果没有 receive 属性, 则向所有人发送
-                if (Objects.nonNull(msgMap) && !StringUtils.hasText(msgMap.get("receive"))) {
-                    String msgReturn = "{sendId:'" + session.getId() + "', info:'" + msgMap.get("msg") + "'}";
-                    entry.getValue().getBasicRemote().sendText(msgReturn);
-                } else {
-                    // 向指定用户发送
-                    if (Objects.nonNull(msgMap) && entry.getKey().equals(msgMap.get("receive"))) {
-                        String msgReturn = "{sendId:'" + session.getId() + "', info:'" + msgMap.get("msg") + "'}";
-                        entry.getValue().getBasicRemote().sendText(msgReturn);
-                    }
+        User curUser = this.getCurUser();
+        Map<String, Object> msgs = JsonUtil.jsonStrToMap(message);
+        if (msgs != null) {
+            // map 中第一个元素总是 dataType, 根据数据类型进行不同的处理
+            if ("sendMessage".equals(msgs.get("dataType"))) {
+                // 收到客户端的消息
+                // 1.保存到数据库中
+                this.chatService.storeMessage(curUser, msgs);
+                // 2.将消息发送给接收人: 需要发送一个未读消息数量给指定用户, 包括所有消息
+                // {
+                // dataType：'allNoReadMsgCount',
+                // allCount：8,
+                // userListCount：{
+                // 客服aid ：2
+                // 客服bid ：3
+                // 客服cid ：3
+                // }
+                // }
+
+                // 构建接受用户对象
+                User receiveUser = this.establishReceiveUser(msgs);
+
+                // 从 sessionMap 中找到该用户
+                // 需要接收人在线才能发送消息
+                if (sessionMap.containsKey(receiveUser)) {
+                    sessionMap.get(receiveUser).getBasicRemote().sendText(this.getCountNoRead(receiveUser));
                 }
+
+            } else if ("outMsg".equals(msgs.get("dataType"))) {
+                // 如果收到下线通知, 则从 map 中移除
+                // 从 map 中移除登陆用户
+                sessionMap.remove(curUser);
+            } else if ("updateMessageRead".equals(msgs.get("dataType"))) {
+                // 收到更新两用户之间消息状态的通知
+
+                // 因为是登陆用户点击列表进行查看, 所有更新状态时: 只能更新当前登录用户做为接收人时, 与发送人的未读消息状态
+                // 而当前登录用户做为发送人的消息状态不能被更新
+                User receiveUser = this.getCurUser();
+                User sendUser = this.establishSendUser(msgs);
+
+
+                // 1. 先获取到两用户之间的所有未读消息返回, 返回给当前登陆用户, 即接收人
+                // {
+                // dataType：'noReadMsgList',
+                // noReadMsgList：[
+                // { sendUserId,xxx,receiveUserId:xxx,msgContent:xxx....}, // 可能不止一条消息
+                // { sendUserId,xxx,receiveUserId:xxx,msgContent:xxx....},
+                // { sendUserId,xxx,receiveUserId:xxx,msgContent:xxx....}
+                // ]
+                // }
+                // todo 返回所有未读消息, 那么已读消息何时显示? 在聊天记录中显示
+                List<ChatInfo> allNoReadChatInfo = this.chatService.getAllNoReadChatInfoTwoUser(sendUser, receiveUser);
+                String noReadMsgList = "{\"dataType\":\"noReadMsgList\", " +
+                        "\"noReadMsgList\":" + JsonUtil.objToJsonStr(allNoReadChatInfo) + "}";
+                sessionMap.get(receiveUser).getBasicRemote().sendText(noReadMsgList);
+
+                // 2. 再到数据库更新状态为已读
+                this.chatService.updateMessageRead(sendUser, receiveUser);
             }
         }
-    }*/
+    }
 
 
     @OnClose
@@ -95,11 +140,19 @@ public class ChatController {
         System.out.println("客服端 " + session.getId() + " 连接断开");
         // 用户下线: 从 map 移除对象, 因为查询时, 是用当前 sessionMap 中保存的所有在线用户与所有用户进行对比, 如果在 map 中表示该用户在线
         // 从 map 中移除, 则即可下线
+        // 如果是发下线请求(同时退出登陆), 则当前 sessionMap 中已不存在当前用户; 而且 session 作用域中已经移除当前用户
+        // 如果只是下线请求, 而没有退出登录, 则 session 作用域存在当前用户, 而 sessionMap 中不存在
+        // 如果没有发出下线请求, 但是刷新页面情况下, 会自动下线, 此时 sessionMap 和 session 作用域中均存在当前用户, 需要移除
+        // 直接关闭浏览器或是关闭页面时, 会执行 onClose() 方法, 此时 session 作用域和 sessionMap 中均存在该用户
         User curUser = this.getCurUser();
-        sessionMap.remove(curUser);
-        // 更新其他用户的列表, 而不是当前在线用户, 当前在线用户已经下线
-        // todo 遍历 map 发送消息, 进行更新
-        session.getBasicRemote().sendText(this.getUserList(curUser));
+        if (Objects.nonNull(curUser) && sessionMap.containsKey(curUser)) {
+            sessionMap.remove(curUser);
+        }
+        // 更新其他用户的列表, 而不是当前用户, 当前在线用户已经下线
+        // 遍历 map 发送消息, 进行更新
+        for (Map.Entry<User, Session> entry : sessionMap.entrySet()) {
+            entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
+        }
     }
 
     @OnError
@@ -107,5 +160,40 @@ public class ChatController {
         System.out.println("客服端 " + session.getId() + " 连接出错");
         error.printStackTrace();
     }
+
+    // 返回消息接收人的所有未读消息包括总数量和与每个用户的未读消息数量
+    private String getCountNoRead(User receiveUser) {
+        // 所有未读消息总数量
+        Integer allCount = this.chatService.countChatInfoNoRead(receiveUser.getUid());
+        // 与每个用户的未读消息数量
+        String userListCount = this.chatService.countChatInfoWithEveryUser(receiveUser);
+        String allNoReadMsgCount = "{\"dataType\":\"allNoReadMsgCount\", " +
+                "\"allCount\":" + allCount + ", " +
+                "\"userListCount\":" + userListCount + "}";
+        return allNoReadMsgCount;
+    }
+
+    // 根据前台发送的字符串转换成的 map 构建 User 对象
+    private User establishReceiveUser(Map<String, Object> msgs) {
+        Integer receiveUserId = (Integer) msgs.get("receiveUserId");
+        String receiveUserType = (String) msgs.get("receiveUserType");
+        User user = new User();
+        // 通过 id 和用户类型即可唯一确定一个 User 对象
+        user.setType(receiveUserType);
+        user.setUid(receiveUserId);
+        return user;
+    }
+
+    // 根据前台发送的字符串构建发送人 User 对象
+    private User establishSendUser(Map<String, Object> msgs) {
+        Integer sendUserId = (Integer) msgs.get("sendUserId");
+        String sendUserType = (String) msgs.get("sendUserType");
+        User user = new User();
+        // 通过 id 和用户类型即可唯一确定一个 User 对象
+        user.setType(sendUserType);
+        user.setUid(sendUserId);
+        return user;
+    }
+
 
 }

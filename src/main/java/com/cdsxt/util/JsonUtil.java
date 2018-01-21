@@ -62,9 +62,9 @@ public class JsonUtil {
     /**
      * 对象转json字符串
      */
-    public static Map jsonStrToMap(String jsonStr) {
+    public static Map<String, Object> jsonStrToMap(String jsonStr) {
         try {
-            Map map = jsonParse.readValue(jsonStr, Map.class);
+            Map<String, Object> map = jsonParse.readValue(jsonStr, Map.class);
             return map;
         } catch (IOException e) {
             e.printStackTrace();

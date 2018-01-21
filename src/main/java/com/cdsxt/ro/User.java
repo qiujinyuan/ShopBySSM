@@ -21,6 +21,9 @@ public class User {
     // 在线状态
     private Boolean online;
 
+    // 用户头像
+    private String img;
+
     // 提供三个参数构造器
     public User(Integer uid, String username, Boolean online) {
         this.uid = uid;
@@ -128,5 +131,13 @@ public class User {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
     }
 }
