@@ -1,48 +1,31 @@
-/**
- * 标题有消息提示
- */
-function message() {
-    var a = $.blinkTitle.show();
-    setTimeout(function () {
-            $.blinkTitle.clear(a)
-        },
-        8e3)
-}
-
-function e(curUserName, curUserId, sendUserImg) {
+// 添加消息到对话框
+function appendNewMsgToChatWin(curUserName, curUserId, curUserImg) {
     /**
      * 处理表情的方法
      */
-    function h() {
-        -1 != g.indexOf("*#emo_") && (g = g.replace("*#", "<img src='assets/chat/img/").replace("#*", ".gif'/>"), h())
+    function handleEmoij() {
+        -1 != msgContent.indexOf("*#emo_") && (msgContent = msgContent.replace("*#", "<img src='assets/chat/img/").replace("#*", ".gif'/>"), handleEmoij())
     }
 
-    var a = 3,
-        //发送人头像图片
-        sendUserImg1 = "assets/chat/img/head/" + sendUserImg,
-        //接收人头像图片
-        receiveUserImg = "assets/chat/img/head/2015.jpg",
-        d = "对方的名字";
-
-    var e = new Date,
-        f = "";
-    f += e.getFullYear() + "-",
-        f += e.getMonth() + 1 + "-",
-        f += e.getDate() + "  ",
-        f += e.getHours() + ":",
-        f += e.getMinutes() + ":",
-        f += e.getSeconds();
+    var sendNewMsgDate = new Date();
+    var newMsgDateStr = "";
+    newMsgDateStr += sendNewMsgDate.getFullYear() + "-";
+    newMsgDateStr += sendNewMsgDate.getMonth() + 1 + "-";
+    newMsgDateStr += sendNewMsgDate.getDate() + "  ";
+    newMsgDateStr += sendNewMsgDate.getHours() + ":";
+    newMsgDateStr += sendNewMsgDate.getMinutes() + ":";
+    newMsgDateStr += sendNewMsgDate.getSeconds();
     // 取出消息输入框内容
-    var g = $("#textarea").val();
-    h();
+    var msgContent = $("#textarea").val();
+    handleEmoij();
     // 消息内容：发送的消息
-    var i = "<div class='message clearfix'><div class='user-logo'><img src='" + sendUserImg1 + "'/>"
+    var i = "<div class='message clearfix'><div class='user-logo'><img src='assets/chat/img/head/" + curUserImg + "'/>"
         + "</div>" + "<div class='wrap-text'>" + "<h5 class='clearfix'>" + curUserName + "</h5>"
-        + "<div>" + g + "</div>" + "</div>" + "<div class='wrap-ri'>" +
-        "<div clsss='clearfix'><span>" + f + "</span></div>" + "</div>" +
+        + "<div>" + msgContent + "</div>" + "</div>" + "<div class='wrap-ri'>" +
+        "<div clsss='clearfix'><span>" + newMsgDateStr + "</span></div>" + "</div>" +
         "<div style='clear:both;'></div></div>";
     // 消息是否为空
-    if (null != g && "" != g) {
+    if (null != msgContent && "" != msgContent) {
         // 添加消息
         // 找到对应的消息内容框添加消息
         $(".mes" + window.a).append(i);
@@ -53,16 +36,13 @@ function e(curUserName, curUserId, sendUserImg) {
         /**
          * 发送消息给服务器
          */
-            // 标题消息提示
-            // message();
-
             // 构建消息对象
         var msgEntity = {
                 dataType: 'sendMessage',
                 receiveUserId: Number.parseInt(curRevUserId),
                 receiveUserName: curRevUserName,
                 receiveUserType: curRevUserType,
-                msgContent: g
+                msgContent: msgContent
             };
         // 发送消息
         chat.socket.send(JSON.stringify(msgEntity));
@@ -73,16 +53,19 @@ function e(curUserName, curUserId, sendUserImg) {
 }
 
 //发送按钮：发送消息事件
-function sendBtnMessage(curUserName, curUserId, sendUserImg) {
-    e(curUserName, curUserId, sendUserImg);
+function sendBtnMessage(curUserName, curUserId, curUserImg) {
+    // 如果没选择用户, 提示
+    if (curRevUserId) {
+        appendNewMsgToChatWin(curUserName, curUserId, curUserImg);
+    } else {
+        alert("请选择聊天对象!");
+    }
 }
 
 $(document).ready(function () {
     /**
      * 发送消息的事件
      */
-
-
     // 关闭按钮-隐藏窗口
     $(".close_btn").click(function () {
         $(".chatBox").hide()
@@ -117,14 +100,6 @@ $(document).ready(function () {
             $(".wl_faces_box").hide()
     });
 
-
-    /*    //键盘enter：发送消息事件
-        document.onkeydown = function (a) {
-            var b = document.all ? window.event : a;
-            return 13 == b.keyCode ? (e(), !1) : void 0
-        };*/
-
-
     //其他效果
     $.fn.setCursorPosition = function (a) {
         return 0 == this.lengh ? this : $(this).setSelection(a, a)
@@ -143,37 +118,18 @@ $(document).ready(function () {
     $.fn.focusEnd = function () {
         this.setCursorPosition(this.val().length)
     }
-}),
-    function (a) {
-        a.extend({
-            blinkTitle: {
-                show: function () {
-                    var a = 0,
-                        b = document.title;
-                    if (-1 == document.title.indexOf("【")) var c = setInterval(function () {
-                            a++,
-                            3 == a && (a = 1),
-                            1 == a && (document.title = "【　　　】" + b),
-                            2 == a && (document.title = "【新消息】" + b)
-                        },
-                        500);
-                    return [c, b]
-                },
-                clear: function (a) {
-                    a && (clearInterval(a[0]), document.title = a[1])
-                }
-            }
-        })
-    }(jQuery);
+});
 
 /**
  * 设置点击窗口的【用户列表】的单击事件
  */
-function setClickShowMsgWin(obj) {
+function setClickShowMsgWin(obj, isNotice) {
     // 获取 li 元素对象
-    var domLi = $(obj).parent();
+    var domLi = $(obj);
     //更新切换消息内容框
     updateMsgWin(domLi);
+    // 点击后, 更新未读消息数量为 0 条
+    updateMsgCount(curRevUserName, 0);
     /**
      *
      * a）读取消息并更新未读消息状态为已读
@@ -188,14 +144,35 @@ function setClickShowMsgWin(obj) {
             sendUserType: curRevUserType
         };
     chat.socket.send(JSON.stringify(updateMessageRead));
+
+    // 如果是点击用户列表, 则需要手动把通知条(默认不会自动关闭)关闭
+    // 如果是点击通知条, 则系统会自动销毁通知条, 无需手动关闭
+    if (!isNotice) {
+        closeJBoxNotice(curRevUserName);
+    }
 }
 
+/**
+ * 关闭 jBox 通知条, 并将其从 jBox 数组中移除
+ */
+function closeJBoxNotice(targetUserName) {
+    for (var j in jbs) {
+        var str = jbs[j].content["0"].innerHTML;
+        if (targetUserName == str.substring(0, str.indexOf(" "))) {
+            var jBoxId = $(jbs[j]).attr("id");
+            // 移除 jBox dom 元素
+            $("#" + jBoxId).remove();
+            // 从数组中移除 jBox 对象
+            jbs.splice(j, 1);
+        }
+    }
+}
 
 /**
  * 更新切换消息内容框
  */
-//当前接收消息的id
-var curRevUserId, curRevUserName, curRevUserType;
+    //当前接收消息的用户信息: 只有点击用户列表的某个用户后, 以下变量才会被赋值
+var curRevUserId, curRevUserName, curRevUserType, curRevUserImg;
 
 function updateMsgWin(domLi) {
     // debugger;
@@ -203,6 +180,7 @@ function updateMsgWin(domLi) {
     curRevUserId = domLi.attr('userId');
     curRevUserName = domLi.attr('userName');
     curRevUserType = domLi.attr('userType');
+    curRevUserImg = domLi.attr('img');
 
     //获取点击的位置
     var b = domLi.index() + 1;
@@ -214,8 +192,8 @@ function updateMsgWin(domLi) {
     // d = dom.find(".chat03_name").text();
     d = curRevUserName;
 
-    //消息内容框移动到顶部
-    $(".chat01_content").scrollTop(0);
+    //消息内容框滚动到底部
+    $(".chat01_content").scrollTop($(".mes" + window.a).height());
     //设置自己的选中样式，其他的取消
     domLi.addClass("choosed").siblings().removeClass("choosed");
     //设置聊天框-当前接收人的名字
@@ -224,4 +202,41 @@ function updateMsgWin(domLi) {
     $(".mes" + b).show().siblings().hide();
 }
 
+// 更新消息数量: 指定更新哪个发送人的消息数量为多少条
+function updateMsgCount(userName, targetCount) {
+    var $userListLiCopy = $(".chat03_content li");
+    $userListLiCopy.each(function () {
+        if ($(this).attr("userName") == userName) {
+            // 更改 dom 元素, 进行提示消息条数
+            var $a2 = $(this).children("a").eq(1);
+            var regex = /\[\w+\]/;
+            $a2.html($a2.html().replace(regex, "[" + targetCount + "]"));
+        }
+    });
+}
+
+// 成员变量保存当前用户
+var curUserName, curUserId, curUserImg;
+
+// 显示所有的聊天记录
+function showAllMsg(curUserNameParam, curUserIdParam, curUserImgParam, e) {
+    e.preventDefault();
+    if (curRevUserId) {
+        // 同时保存当前登陆用户, 用于消息返回之后显示
+        curUserName = curUserNameParam;
+        curUserId = curUserIdParam;
+        curUserImg = curUserImgParam;
+
+        // 构建消息对象
+        var msgEntity = {
+            dataType: 'allMsgList',
+            receiveUserId: Number.parseInt(curRevUserId), // 被点击用户做为另一方用户, 只有点击后, 成员变量才有值, 才能发送消息
+            receiveUserType: curRevUserType
+        };
+        // 发送消息
+        chat.socket.send(JSON.stringify(msgEntity));
+    } else {
+        alert("请选择聊天对象!");
+    }
+}
 

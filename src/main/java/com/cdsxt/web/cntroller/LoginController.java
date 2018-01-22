@@ -136,10 +136,10 @@ public class LoginController {
         User curUser = (User) request.getSession().getAttribute("curUser");
         if (Objects.nonNull(curUser)) {
             // 使 session 失效
-            // request.getSession().invalidate();
+            request.getSession().invalidate();
             // 移除当前用户
-            ChatController.sessionMap.remove(curUser);
-            request.getSession().removeAttribute("curUser");
+            // ChatController.sessionMap.remove(curUser);
+            // request.getSession().removeAttribute("curUser");
         }
         return "redirect:/shop";
     }

@@ -42,4 +42,7 @@ public interface ChatService {
 
     // 获取用户之间所有未读消息
     List<ChatInfo> getAllNoReadChatInfoTwoUser(User sendUser, User receiveUser);
+
+    // 获取所有消息
+    List<ChatInfo> getAllMsgChatInfoTwoUser(User sendUser, User receiveUser);
 }

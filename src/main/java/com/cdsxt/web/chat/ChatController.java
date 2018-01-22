@@ -41,6 +41,17 @@ public class ChatController {
             // 用户上线, 通知所有在线用户, 发送用户列表, 包括当前用户
             for (Map.Entry<User, Session> entry : sessionMap.entrySet()) {
                 entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
+                if (entry.getKey().equals(curUser)) {
+                    //  给当前登录用户发送 "登陆成功" 通知
+                    String systemNotice = "{\"dataType\":\"systemNotice\", " +
+                            "\"msg\":\"" + curUser.getName() + " 登陆成功!\""  + "}";
+                    entry.getValue().getBasicRemote().sendText(systemNotice);
+                } else {
+                    //  给其他用户发送 "xx上线" 通知
+                    String systemNotice = "{\"dataType\":\"systemNotice\", " +
+                            "\"msg\":\"" + curUser.getName() + " 已上线!\""  + "}";
+                    entry.getValue().getBasicRemote().sendText(systemNotice);
+                }
             }
         }
     }
@@ -63,7 +74,6 @@ public class ChatController {
             // 获取客服列表
             userList = chatService.getUserListWithState("backUser", sessionMap.keySet());
         }
-        // String userListStr = JsonUtil.objToJsonStr(userList);
         // 拼接 json 字符串
         return "{\"dataType\":\"userList\", \"userList\":" + JsonUtil.objToJsonStr(userList) + "}";
     }
@@ -122,7 +132,7 @@ public class ChatController {
                 // { sendUserId,xxx,receiveUserId:xxx,msgContent:xxx....}
                 // ]
                 // }
-                // todo 返回所有未读消息, 那么已读消息何时显示? 在聊天记录中显示
+                //  返回所有未读消息, 那么已读消息何时显示? 在聊天记录中显示
                 List<ChatInfo> allNoReadChatInfo = this.chatService.getAllNoReadChatInfoTwoUser(sendUser, receiveUser);
                 String noReadMsgList = "{\"dataType\":\"noReadMsgList\", " +
                         "\"noReadMsgList\":" + JsonUtil.objToJsonStr(allNoReadChatInfo) + "}";
@@ -130,6 +140,15 @@ public class ChatController {
 
                 // 2. 再到数据库更新状态为已读
                 this.chatService.updateMessageRead(sendUser, receiveUser);
+            } else if ("allMsgList".equals(msgs.get("dataType"))) {
+                // 查看两个用户之间所有的聊天信息
+                // 此时, 当前登陆用户作为发送人, 在数据库并不区分接收人和发送人
+                User receiveUser = this.establishReceiveUser(msgs);
+                User sendUser = this.getCurUser();
+                List<ChatInfo> allMsgChatInfoList = this.chatService.getAllMsgChatInfoTwoUser(sendUser, receiveUser);
+                String allMsgList = "{\"dataType\":\"allMsgList\", " +
+                        "\"allMsgList\":" + JsonUtil.objToJsonStr(allMsgChatInfoList) + "}";
+                sessionMap.get(sendUser).getBasicRemote().sendText(allMsgList);
             }
         }
     }
@@ -144,15 +163,33 @@ public class ChatController {
         // 如果只是下线请求, 而没有退出登录, 则 session 作用域存在当前用户, 而 sessionMap 中不存在
         // 如果没有发出下线请求, 但是刷新页面情况下, 会自动下线, 此时 sessionMap 和 session 作用域中均存在当前用户, 需要移除
         // 直接关闭浏览器或是关闭页面时, 会执行 onClose() 方法, 此时 session 作用域和 sessionMap 中均存在该用户
-        User curUser = this.getCurUser();
+        /*User curUser = this.getCurUser();
         if (Objects.nonNull(curUser) && sessionMap.containsKey(curUser)) {
             sessionMap.remove(curUser);
-        }
-        // 更新其他用户的列表, 而不是当前用户, 当前在线用户已经下线
-        // 遍历 map 发送消息, 进行更新
+        }*/
+
+        User curUser = null;
+
+        // 根据 session 去获取到对应的 User, 则不会遇到 curUser 为 null 的情况
+        // 但是有可能只是关闭 session, 而没有往 sessionMap 中存储
         for (Map.Entry<User, Session> entry : sessionMap.entrySet()) {
-            entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
+            if (entry.getValue().equals(session)) {
+                curUser = entry.getKey();
+            }
         }
+        if (Objects.nonNull(curUser)) {
+            // 1. 移除对象
+            sessionMap.remove(curUser);
+            // 2. 给其他用户发送 "xx下线" 通知
+            // 3. 遍历 map 发送消息, 更新其他用户的列表
+            for (Map.Entry<User, Session> entry : sessionMap.entrySet()) {
+                String systemNotice = "{\"dataType\":\"systemNotice\", " +
+                        "\"msg\":\"" + curUser.getName() + "已下线!\""  + "}";
+                entry.getValue().getBasicRemote().sendText(systemNotice);
+                entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
+            }
+        }
+
     }
 
     @OnError

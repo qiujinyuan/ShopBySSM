@@ -4,9 +4,8 @@
 
 <!--聊天界面的基础js：控制界面效果 -->
 <script type="text/javascript" src="assets/chat/js/chat.js"></script>
+<script type="text/javascript" src="assets/chat/js/chat_msg.js"></script>
 
-<!--聊天界面：聊天的逻辑代码编写websocket的一些操作=需自己定义 -->
-<%--<script type="text/javascript" src="assets/chat/js/chat_my_controller.js"></script>--%>
 <style>
     .white_content {
         display: none;

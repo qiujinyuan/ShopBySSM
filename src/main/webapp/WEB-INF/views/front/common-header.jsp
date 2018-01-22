@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-
 <script type="text/javascript" src="assets/js/cookie-util.js"></script>
 <script type="text/javascript">
     function loginOut() {
@@ -65,7 +64,6 @@
                     </li>
                     <li id="headerRegister" class="headerRegister"
                         style="display: list-item;">
-                            <%--todo 客服退出登录--%>
                         <a href="javascript:void(0)" onclick="loginOut();">退出</a>
                     </li>
                 </c:if>

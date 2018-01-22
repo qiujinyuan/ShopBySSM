@@ -12,7 +12,6 @@
     <!-- 基本页面-元信息 -->
     <%@ include file="common-base.jsp" %>
     <link href="assets/css/product.css" rel="stylesheet" type="text/css"/>
-    <script src="assets/js/jquery-1.8.3.js"></script>
     <script src="assets/js/cookie-util.js"></script>
 
 </head>

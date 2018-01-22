@@ -36,8 +36,8 @@
                            src="http://service.weibo.com/staticjs/tools/upload.swf?v=36c9997f1313d1c4"
                            id="swf_3140"/>
                 </a> <label class="chat02_title_t">
-                    <%--todo 点击聊天记录后, 显示所有消息--%>
-                    <a href="####" target="_blank">聊天记录</a></label>
+                    <%-- 点击聊天记录后, 显示所有消息--%>
+                    <a href="" target="_blank" onclick="showAllMsg('${curUser.name}', '${curUser.uid}', '${curUser.img}', event)">聊天记录</a></label>
                     <div class="wl_faces_box">
                         <div class="wl_faces_content">
                             <div class="title">

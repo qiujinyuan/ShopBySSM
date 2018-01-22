@@ -101,6 +101,12 @@ public class ChatServiceImpl implements ChatService {
         return this.chatInfoDao.queryChatInfoTwoUserNoRead(sendUser.getUid(), receiveUser.getUid());
     }
 
+    // 获取所有消息
+    @Override
+    public List<ChatInfo> getAllMsgChatInfoTwoUser(User sendUser, User receiveUser) {
+        return this.chatInfoDao.queryChatInfoTwoUser(sendUser.getUid(), receiveUser.getUid());
+    }
+
     // 因为使用 mybatis 查询出来的 User 对象, 默认没有用户类型, 所有需要进行设置
     private List<User> setUserType(String userType, List<User> userList) {
         for (User user : userList) {
