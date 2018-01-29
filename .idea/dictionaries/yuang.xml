@@ -5,6 +5,7 @@
       <w>alimaven</w>
       <w>alipay</w>
       <w>aliyun</w>
+      <w>appcode</w>
       <w>clearfix</w>
       <w>csid</w>
       <w>csname</w>
@@ -24,8 +25,10 @@
       <w>pdesc</w>
       <w>piic</w>
       <w>pname</w>
+      <w>querys</w>
       <w>testng</w>
       <w>webapp</w>
+      <w>yunda</w>
     </words>
   </dictionary>
 </component>

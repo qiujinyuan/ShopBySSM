@@ -10,8 +10,6 @@
     <base href="<%=basePath%>">
     <title>所有订单</title>
     <%@ include file="common-base.jsp" %>
-    <link href="assets/css/cart.css" rel="stylesheet" type="text/css"/>
-
 </head>
 <body>
 <%@ include file="common-header.jsp" %>
@@ -52,6 +50,8 @@
                 <th>下单时间</th>
                 <th>收货人</th>
                 <th>支付状态</th>
+                <th>物流公司</th>
+                <th>物流编号</th>
             </tr>
             </thead>
             <tbody>
@@ -72,6 +72,10 @@
                                 ${order.state}
                             </c:otherwise>
                         </c:choose>
+                    </td>
+                    <td>${order.logisticsComp}</td>
+                    <td>
+                        <a href="order/queryLogistics?logisticsComp=${order.logisticsComp}&logisticsNum=${order.logisticsNum}">${order.logisticsNum}</a>
                     </td>
                 </tr>
             </c:forEach>

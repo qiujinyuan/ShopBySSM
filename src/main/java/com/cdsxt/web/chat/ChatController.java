@@ -40,17 +40,20 @@ public class ChatController {
             sessionMap.put(curUser, session);
             // 用户上线, 通知所有在线用户, 发送用户列表, 包括当前用户
             for (Map.Entry<User, Session> entry : sessionMap.entrySet()) {
-                entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
                 if (entry.getKey().equals(curUser)) {
                     //  给当前登录用户发送 "登陆成功" 通知
                     String systemNotice = "{\"dataType\":\"systemNotice\", " +
-                            "\"msg\":\"" + curUser.getName() + " 登陆成功!\""  + "}";
+                            "\"msg\":\"" + curUser.getName() + " 登陆成功!\"" + "}";
                     entry.getValue().getBasicRemote().sendText(systemNotice);
-                } else {
-                    //  给其他用户发送 "xx上线" 通知
+                    // 同时需要更新自己的用户列表
+                    entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
+                } else if (!entry.getKey().getType().equals(curUser.getType())) {
+                    //  给其他用户(而且用户类型与当前登陆用户类型不同)发送 "xx上线" 通知
                     String systemNotice = "{\"dataType\":\"systemNotice\", " +
-                            "\"msg\":\"" + curUser.getName() + " 已上线!\""  + "}";
+                            "\"msg\":\"" + curUser.getName() + " 已上线!\"" + "}";
                     entry.getValue().getBasicRemote().sendText(systemNotice);
+                    // 用户类型不同才需要更新列表
+                    entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
                 }
             }
         }
@@ -183,10 +186,14 @@ public class ChatController {
             // 2. 给其他用户发送 "xx下线" 通知
             // 3. 遍历 map 发送消息, 更新其他用户的列表
             for (Map.Entry<User, Session> entry : sessionMap.entrySet()) {
-                String systemNotice = "{\"dataType\":\"systemNotice\", " +
-                        "\"msg\":\"" + curUser.getName() + "已下线!\""  + "}";
-                entry.getValue().getBasicRemote().sendText(systemNotice);
-                entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
+                // 用户类型不同才需要发送下线通知并更新列表
+                if (!entry.getKey().getType().equals(curUser.getType())) {
+                    String systemNotice = "{\"dataType\":\"systemNotice\", " +
+                            "\"msg\":\"" + curUser.getName() + "已下线!\"" + "}";
+                    entry.getValue().getBasicRemote().sendText(systemNotice);
+                    entry.getValue().getBasicRemote().sendText(this.getUserList(entry.getKey()));
+                }
+
             }
         }
 

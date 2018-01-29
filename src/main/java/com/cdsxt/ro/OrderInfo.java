@@ -19,7 +19,7 @@ public class OrderInfo {
     private String addr;
     private Integer uid;
     private String logisticsComp;
-    private Integer logisticsNum;
+    private Long logisticsNum;
 
     public String getOid() {
         return oid;
@@ -93,11 +93,12 @@ public class OrderInfo {
         this.logisticsComp = logisticsComp;
     }
 
-    public Integer getLogisticsNum() {
+
+    public Long getLogisticsNum() {
         return logisticsNum;
     }
 
-    public void setLogisticsNum(Integer logisticsNum) {
+    public void setLogisticsNum(Long logisticsNum) {
         this.logisticsNum = logisticsNum;
     }
 }

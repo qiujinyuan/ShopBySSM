@@ -7,8 +7,12 @@ import com.cdsxt.ro.UserAddress;
 import com.cdsxt.service.CartService;
 import com.cdsxt.service.OrderService;
 import com.cdsxt.service.UserService;
+import com.cdsxt.util.HttpUtils;
 import com.cdsxt.util.JsonUtil;
+import com.cdsxt.vo.LogisticsInfo;
 import com.cdsxt.vo.ProductInCart;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -187,6 +191,47 @@ public class OrderController {
         List<OrderInfo> orders = this.orderService.selectOrderWithParam(params);
         model.addAttribute("allOrders", orders);
         return "front/allOrder";
+    }
+
+    /**
+     * 查询物流信息
+     */
+    @RequestMapping(value = "queryLogistics", method = RequestMethod.GET)
+    public String queryLogistics(String logisticsComp, String logisticsNum, Model model) {
+        String logicInfo = this.queryApiByAli(logisticsComp, logisticsNum);
+        LogisticsInfo logisticsInfo = new LogisticsInfo();
+        LinkedHashMap result = (LinkedHashMap) JsonUtil.jsonStrToMap(logicInfo).get("result");
+        logisticsInfo.setResults((List<Map<String, String>>) result.get("list"));
+        logisticsInfo.setNumber((String) result.get("number"));
+        logisticsInfo.setType((String) result.get("type"));
+
+        model.addAttribute("logisticsInfo", logisticsInfo);
+        return "front/logisticsResult";
+    }
+
+    // 调用 快递查询 API 的方法
+    private String queryApiByAli(String logisticsComp, String logisticsNum) {
+        String host = "http://jisukdcx.market.alicloudapi.com";
+        String path = "/express/query";
+        String method = "GET";
+        String appcode = "d0a4cc9b736745748a11673310ea956c";
+        Map<String, String> headers = new HashMap<>();
+        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
+        headers.put("Authorization", "APPCODE " + appcode);
+        Map<String, String> querys = new HashMap<>();
+        querys.put("number", logisticsNum);
+        querys.put("type", logisticsComp);
+
+
+        try {
+            HttpResponse response = HttpUtils.doGet(host, path, method, headers, querys);
+            System.out.println(response.toString());
+            //获取response的body
+            return EntityUtils.toString(response.getEntity());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
